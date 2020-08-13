@@ -14,49 +14,100 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+
+Route::prefix('screenshots')->group(function () {
+
+    Route::get('/id/{ticket_id}/get', 'ControllerScreenshots@index');
+
 });
 
-Route::get('/user-auth/user/{user}/password/{password}', 'ControllerAuth@login');
+Route::prefix('/auth')->group(function () {
 
-Route::post('/user-auth/logout', 'ControllerAuth@logout');
+    Route::post('/login', 'ControllerAuth@login');
 
-Route::post('/create-ticket', 'ControllerTicket@store');
+    Route::post('/logout', 'ControllerAuth@logout');
 
-Route::get('/get-tickets/{status}', 'ControllerTicket@index');
+});
 
-Route::get('/get-ticket/{id}', 'ControllerTicket@show');
+Route::prefix('/user')->group(function() {
 
-Route::post('/create-comment', 'ControllerComment@store');
+    Route::prefix('tickets')->group(function (){
 
-Route::get('/get-comment/{id}', 'ControllerComment@show');
+        Route::get('/find/{find}', 'user\ControllerTicketFind@index');
 
-Route::get('/get-comments/{ticket_id}', 'ControllerComment@index');
+        Route::post('/create', 'user\ControllerTicket@store');
 
-Route::put('/completed-ticket/{ticket_id}', 'ControllerTicket@update');
+        Route::get('/pages', 'user\ControllerTicket@countPage');
 
-Route::get('/check-status-ticket/{number}', 'ControllerTicket@check');
+        Route::get('/page/{page}/get', 'user\ControllerTicket@index');
 
-Route::prefix('/handler-tickets')->group(function () {
+        Route::get('/id/{id}/get', 'user\ControllerTicket@show');
 
-    Route::get('get-ticket/{id}', 'ControllerHandlerTicket@show');
+        Route::get('/check-status/number/{number}', 'user\ControllerTicket@check');
 
-    Route::get('/get-status-ticket', 'ControllerHandlerStatusTicket@index');
+        Route::get('/id/{id}/state', 'user\ControllerTicket@state');
 
-    Route::put('/change-status-ticket', 'ControllerHandlerTicket@changeStatus');
+        Route::prefix('completed')->group(function(){
+
+            Route::put('/id/{ticket_id}/set', 'user\ControllerTicket@update');
+
+            Route::get('/page/{page}/get', 'user\ControllerTicketCompleted@index');
+
+            Route::get('/pages', 'user\ControllerTicketCompleted@countPage');
+
+        });
+
+    });
+
+    Route::prefix('comments')->group(function (){
+
+        Route::post('/create', 'user\ControllerComment@store');
+
+        Route::get('/{id}/get', 'user\ControllerComment@show');
+
+        Route::get('/ticket/{ticket_id}/get', 'user\ControllerComment@index');
+
+    });
+
+});
+
+Route::prefix('/handler')->group(function () {
+
+    Route::prefix('tickets')->group(function (){
+
+        Route::get('/count-type', 'handler\ControllerHandlerTicket@countTypeTicket');
+
+        Route::put('/id/{id}/reset-new', 'handler\ControllerHandlerTicket@resetNew');
+
+        Route::get('/id/{id}/get', 'handler\ControllerHandlerTicket@show');
+
+        Route::get('/page/{page}/type/{type}/get', 'handler\ControllerHandlerTicket@index');
+
+        Route::get('/type/{type}/pages', 'handler\ControllerHandlerTicket@countPage');
+
+        Route::get('/find/{findText}', 'handler\ControllerHandlerTicketFind@index');
+
+        Route::get('/id/{id}/state', 'handler\ControllerHandlerTicket@state');
+
+        Route::put('/change-status', 'handler\ControllerHandlerTicket@changeStatus');
+
+        Route::prefix('status')->group(function (){
+
+            Route::get('/gets', 'handler\ControllerHandlerStatusTicket@index');
+
+        });
+    });
 
     Route::prefix('comments')->group(function () {
 
-        Route::post('/create', 'ControllerHandlerComment@store');
+        Route::post('/create', 'handler\ControllerHandlerComment@store');
 
-        Route::get('/get/{id}', 'ControllerHandlerComment@show');
+        Route::get('/{id}/get', 'handler\ControllerHandlerComment@show');
+
+        Route::get('/ticket/{ticket_id}/get', 'handler\ControllerHandlerComment@index');
     });
 
-    Route::prefix('page')->group(function () {
-
-        Route::get('count', 'ControllerHandlerTicket@countPage');
-
-        Route::get('{page}/get-all-tickets', 'ControllerHandlerTicket@index');
-    });
 });

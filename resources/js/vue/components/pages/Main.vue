@@ -2,8 +2,11 @@
     <div class="main">
         <div class="content menu">
 
-            <div class="item" v-for="item in navTicket" v-if="item.auth === 'both' || item.auth === auth.login">
-                <router-link class="nav-link" :to="item.path" active-class="active">{{item.title}}</router-link>
+            <div class="item mr-md-4 mr-sm-3" v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === auth.login">
+                <router-link class="nav-link" :to="pageCreateTicket.path" active-class="active">{{pageCreateTicket.title}}</router-link>
+            </div>
+            <div class="item" v-if="pageMonitorTicket.auth === 'both' || pageMonitorTicket.auth === auth.login">
+                <router-link class="nav-link" :to="pageMonitorTicket.path" active-class="active">{{pageMonitorTicket.title}}</router-link>
             </div>
 
         </div>
@@ -20,6 +23,14 @@
 
             auth() {
                 return this.$store.state.Auth;
+            },
+
+            pageCreateTicket() {
+                return this.navTicket[0];
+            },
+
+            pageMonitorTicket() {
+                return this.navTicket[1];
             }
         }
     }
@@ -34,6 +45,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
     }
     .item{
         width: 210px;
@@ -42,12 +54,15 @@
         border-radius: 4px;
         background-color: #717171;
 
-        margin-right: 50px;
+        /*margin-right: 50px;*/
 
 
         font-size: 20px;
         text-align: center;
         position: relative;
+    }
+    .item:last-child {
+        /*margin-right:0;*/
     }
     .item a {
         height: 100%;

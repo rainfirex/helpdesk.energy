@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Modules\LdapInfo;
+use App\Http\Middleware\CheckHandler;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 
 class ControllerAuth extends Controller
@@ -15,19 +15,31 @@ class ControllerAuth extends Controller
         $this->middleware('auth:api')->only('logout');
     }
 
-    public function login(string $login, string $password){
+    public function login(Request $request){
+
+        $login    = $request->input('login');
+        $password = $request->input('password');
+
         if (empty($login) || empty($password)) {
             return response()->json([
-                'result'  => false,
+                'success'  => false,
                 'message' => 'Не указан логин или пароль'
             ]);
         }
 
-        $host = 'vm-adc-01.sakh.dvec.ru';
-        $domain = 'SAKH-DEC';
-        $ldapDn = 'OU=Управление,OU=Users,OU=Domain Root Entry,DC=sakh,DC=dvec,DC=ru';
+        $option = Config::get('ldapconfig');
+        if ($option == null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Файл настроек LDAP не обнаружен!'
+            ]);
+        }
 
-        $ldapConnect = ldap_connect($host);// or die("Не могу соединиться с сервером LDAP.");
+        $host = $option['host'];
+        $domain = $option['domain'];
+        $ldapDn = $option['ldapDn'];
+
+        $ldapConnect = ldap_connect($host);
 
         if ($ldapConnect) {
             ldap_set_option($ldapConnect, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -46,14 +58,12 @@ class ControllerAuth extends Controller
                 ]);
             }
 
-
             if ($ldapBind) {
                 //привязка LDAP прошла успешно...
                 $filter = '(&(objectClass=user)(objectCategory=person)(samaccountname=' . $login.'))';
-                //"(cn=*)" "(ou=*)" array("mail", "telephonenumber", "othertelephone", "mobile", "ipphone", "department", "title")
                 $sr = ldap_search($ldapConnect, $ldapDn, $filter,  ['cn', 'dn', 'mail', 'telephonenumber', 'othertelephone', 'mobile', 'department', 'title']);
-                $ldapEntries = ldap_get_entries($ldapConnect, $sr);
 
+                $ldapEntries = ldap_get_entries($ldapConnect, $sr);
 
                 $username = isset($ldapEntries[0]['cn']) ? $ldapEntries[0]['cn'][0] : '';
                 $email = isset($ldapEntries[0]['mail']) ? $ldapEntries[0]['mail'][0] : '';
@@ -92,7 +102,8 @@ class ControllerAuth extends Controller
                     'phone'      => $user->phone,
                     'mobile'     => $user->mobile,
                     'department' => $user->department,
-                    'title'      => $user->title
+                    'title'      => $user->title,
+                    'is_handler' => ($user->department === CheckHandler::HANDLER_DEPARTMENT) ? true : false
                 ], 200);
             } else {
                 //привязка LDAP не удалась...

@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -15,8 +14,8 @@ class FeedMail extends Mailable
 
     /**
      * Create a new message instance.
-     *
-     * @return void
+     * FeedMail constructor.
+     * @param $feedback
      */
     public function __construct($feedback)
     {
@@ -30,6 +29,10 @@ class FeedMail extends Mailable
      */
     public function build()
     {
-        return $this->view('mail');
+//        dd($this->feedback);
+        return $this->view('mail-ticket')->with([
+            'title' => $this->feedback['title'],
+            'body'  => $this->feedback['body']
+        ]);
     }
 }

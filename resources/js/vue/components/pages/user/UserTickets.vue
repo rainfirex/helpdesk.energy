@@ -1,55 +1,97 @@
 <template>
     <div class="user-tickets">
         <div class="content">
-            <h2 class="text-center">Список заявок</h2>
+            <h2 class="text-center">Список активных заявок</h2>
             <hr>
-            <div>
-                <details class="offset-md-1 col-md-10 mb-1">
-                    <summary>Закрытые заявки</summary>
-                    <ListTicket v-bind:tickets="ticketsCompleted"></ListTicket>
-                </details>
 
-                <details class="offset-md-1 col-md-10" open>
-                    <summary>Открытые заявки</summary>
-                    <ListTicket v-bind:tickets="tickets"></ListTicket>
-                </details>
+            <div class="navigator">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><router-link class="p-2" :to="pageCreateTicket.path" v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === user.login">{{pageCreateTicket.title}}</router-link></li>
+                    <li class="breadcrumb-item"><router-link class="p-2" :to="pageCompletedTicket.path" v-if="pageCompletedTicket.auth === 'both' || pageCompletedTicket.auth === user.login">{{pageCompletedTicket.title}}</router-link></li>
+                </ul>
             </div>
+
+            <div class="search mt-4 mb-4">
+                <div class="col-12 offset-md-2 col-md-10 offset-lg-4 col-lg-8">
+                    <div class="row">
+                        <div class="col-10 offset-md-2 col-md-8 offset-lg-4 col-lg-6">
+                            <input type="text" class="form-control" placeholder="номер, название или текст содержимого"
+                                   v-model="findText"
+                                   @input="inputFindText"
+                                   @keydown.enter="findTickets"
+                                   @keydown.esc="findText='';inputFindText()"
+                            >
+                            <p class="mt-1 mb-0 p-1 search-label"><i>Поиск производится по всем статусам</i></p>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-outline-primary" @click="findTickets">Поиск</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
+
+            <div class="container-list">
+                <ListTicket v-bind:tickets="tickets"></ListTicket>
+            </div>
+
         </div>
     </div>
 </template>
 
 <script>
-    import {mapMutations} from 'vuex';
+    import {mapMutations, mapState} from 'vuex';
     import ListTicket from "../../ListTicket";
+    import Pagination from "../../Pagination";
 
     export default {
         name: "UserTickets",
-        components: {ListTicket},
+
+        components: {ListTicket, Pagination},
+
         data() {
             return {
-                tickets: [],
 
-                ticketsCompleted:[],
+                tickets: [],
 
                 errors: null,
 
-                intervalUpdateListTicket: null
+                intervalUpdateListTicket: null,
+
+                countPage: 0,
+
+                currentPage: 0,
+
+                findText: ''
             }
         },
 
         computed: {
 
+            ...mapState(['nav', 'navTicket', 'autoUpdateDataOnPage']),
+
             user(){
                 return this.$store.state.Auth;
             },
+
+            pageCreateTicket(){
+                return this.navTicket[0];
+            },
+            pageCompletedTicket() {
+                return this.navTicket[2];
+            }
         },
 
         methods: {
 
             ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
 
-            getTickets(status) {
-                const url = `/api/get-tickets/${status}`;
+            getTickets(numPage) {
+
+                this.currentPage = numPage;
+
+                const url = `/api/user/tickets/page/${numPage}/get`;
 
                 this.changeLoaderBarMode(true);
 
@@ -59,14 +101,7 @@
                     this.changeLoaderBarMode(false);
 
                     if (response.data.success) {
-                        switch (status) {
-                            case 1:
-                                this.tickets = response.data.tickets;
-                                break;
-                            case 2:
-                                this.ticketsCompleted = response.data.tickets;
-                                break;
-                        }
+                        this.tickets = response.data.tickets;
                     } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
@@ -82,34 +117,111 @@
                 return  new Date(datetime).toLocaleDateString();
             },
 
-            updateListTicket(){
+            startUpdateListTicket(){
                 this.intervalUpdateListTicket = setInterval(() => {
-                    this.getTickets(1);
-                    this.getTickets(2);
-                }, 60000);
+                    this.getTickets(this.currentPage);
+                }, this.autoUpdateDataOnPage);
+            },
+
+            stopUpdateListTicket(){
+                if (this.intervalUpdateListTicket) {
+                    clearInterval(this.intervalUpdateListTicket);
+                    this.intervalUpdateListTicket = null;
+                }
+            },
+
+            getCountPage(){
+
+                const url = `/api/user/tickets/pages`;
+
+                this.changeLoaderBarMode(true);
+
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.user.api_token;
+                axios.get(url).then(response => {
+
+                    this.changeLoaderBarMode(false);
+
+                    if (response.data.success) {
+                        this.countPage = response.data.count;
+                    }
+
+                }).catch(error => {
+                    this.changeLoaderBarMode(false);
+                    this.errors = error.response.data.message;
+                    this.setTextMessenger({text: this.errors, status: 'error'});
+                });
+            },
+
+            inputFindText(){
+                if (this.findText === '') {
+                    this.getCountPage();
+                    this.getTickets(this.currentPage);
+                    this.startUpdateListTicket();
+                }
+            },
+
+            findTickets() {
+                if (this.findText.length < 5) {
+                    this.setTextMessenger({text: 'Для поиска необходимо ввести 5 символов.', status: 'error'});
+                    return false;
+                }
+
+                this.stopUpdateListTicket();
+
+                const url = `/api/user/tickets/find/${this.findText}`;
+
+                this.changeLoaderBarMode(true);
+
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.user.api_token;
+                axios.get(url).then(response => {
+
+                    this.changeLoaderBarMode(false);
+
+                    if (response.data.success) {
+                        this.tickets = response.data.tickets;
+                        this.countPage = 0;
+                    } else {
+                        this.setTextMessenger({text: response.data.message, status: 'error'});
+                    }
+
+                }).catch(error => {
+                    this.changeLoaderBarMode(false);
+                    this.errors = error.response.data.message;
+                    this.setTextMessenger({text: this.errors, status: 'error'});
+                });
             }
         },
 
         created() {
-            this.getTickets(1);
-            this.getTickets(2);
+            this.getCountPage();
 
-            this.updateListTicket();
+            this.getTickets(1);
+
+            this.startUpdateListTicket();
         },
 
         beforeDestroy() {
-            if (this.intervalUpdateListTicket)
-                clearInterval(this.intervalUpdateListTicket);
+            this.stopUpdateListTicket();
         }
     }
 </script>
 
 <style scoped>
-    details {
-        border-radius: 2px;
-        border: solid 1px #d9d9d9;
+
+    .container-list{
+        min-height: 500px;
     }
-    summary:focus {
-        outline: none;
+
+    ul{
+        list-style: none;
     }
+
+    li {
+        display: inline-block;
+    }
+
+    .search-label{
+        font-size: 12px;
+    }
+
 </style>

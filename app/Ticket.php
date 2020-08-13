@@ -12,7 +12,7 @@ class Ticket extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'number', 'phone', 'department', 'category', 'title', 'description', 'status_id', 'performer_user_id'
+        'user_id', 'number', 'phone', 'department', 'category', 'title', 'description', 'status_id', 'performer_user_id', 'is_new'
     ];
 
     public function statusTicket() {

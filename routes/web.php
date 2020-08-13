@@ -21,11 +21,11 @@ Route::view('/monitor-ticket', 'view');
 
 Route::view('/tickets', 'view')->name('tickets');
 
+Route::view('/completed-tickets', 'view')->name('completed-tickets');
+
 Route::view('/create-ticket', 'view');
 
 Route::view('/handler-tickets', 'view')->name('handler-tickets');
-
-Route::get('/mailto', 'ControllerMail@send');
 
 Route::get('/handler-tickets/detale-ticket/{id}', function () {
     return redirect(route('handler-tickets'));
@@ -34,3 +34,5 @@ Route::get('/handler-tickets/detale-ticket/{id}', function () {
 Route::get('/detale-ticket/{id}', function (){
     return redirect(route('tickets'));
 });
+
+//Route::get('/mailto', 'ControllerMail@send');

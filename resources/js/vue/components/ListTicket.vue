@@ -15,7 +15,13 @@
                         <p class="item-ticket-title mb-1">Название: {{ticket.title}}</p>
                     </div>
                     <div class="offset-md-1 col-md-3">
-                        <span>Статус: {{ticket.status_ticket.title}}</span>
+                        <p>Статус:
+                            <span :class="{'status-completed' : ticket.status_ticket.status === 'completed',
+                             'status-untouched' : ticket.status_ticket.status === 'untouched',
+                             'status-performed' : ticket.status_ticket.status === 'performed',
+                             'status-rejected' : ticket.status_ticket.status === 'rejected'}"> {{ticket.status_ticket.title}}</span>
+                        </p>
+
                     </div>
                 </div>
             </router-link>
@@ -44,10 +50,14 @@
     }
     .item-ticket{
         border-bottom: solid 1px #e2e2e2;
-        background: #f3f5f4;
+        background: #f7f7f7;
+    }
+    .item-ticket:last-child {
+        border-bottom: none;
     }
     .item-ticket > a{
         text-decoration: none;
+        color: #656767;
     }
     .item-ticket:hover{
         background-color: white;
@@ -56,5 +66,28 @@
     .item-ticket-title{
         font-size: 1.2em;
         color: #545454;
+    }
+    .status-performed{
+        color: #62ac6c;
+        font-size: 19px;
+        font-style: italic;
+    }
+
+    .status-completed{
+        color: #d68b46;
+        font-size: 19px;
+        font-style: italic;
+    }
+
+    .status-untouched{
+        color: #5e8fe7;
+        font-style: italic;
+        font-size: 19px;
+    }
+
+    .status-rejected{
+        color: #ff150e;
+        font-style: italic;
+        font-size: 19px;
     }
 </style>

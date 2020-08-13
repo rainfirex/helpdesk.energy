@@ -13,8 +13,7 @@ export default {
     nav: [
         {path: '/', title: 'Главная', auth: 'both'},
         {path: '/auth', title: 'Авторизация', auth: false},
-        {path: '/tickets', title: 'Заявки', auth:true},
-        {path: '/handler-tickets', title: 'Обработка заявок', auth: true}
+        {path: '/tickets', title: 'Заявки', auth:true}
     ],
 
     navAuth: [
@@ -23,7 +22,12 @@ export default {
 
     navTicket: [
         {path: '/create-ticket', title: 'Создать заявку', auth: true},
-        {path: '/monitor-ticket', title: 'Проверить заявку', auth: 'both'}
+        {path: '/monitor-ticket', title: 'Проверить заявку', auth: 'both'},
+        {path: '/completed-tickets', title: 'Завершенные заявки', auth: true}
+    ],
+
+    navHandler: [
+        {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true}
     ],
 
     Auth: {
@@ -35,6 +39,9 @@ export default {
         phone: null,
         mobile: null,
         department: null,
-        title: null
-    }
+        title: null,
+        is_handler: null
+    },
+
+    autoUpdateDataOnPage: 80000
 };

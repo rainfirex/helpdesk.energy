@@ -1,9 +1,5 @@
 export default {
 
-    changeTest(state) {
-        state.test = 'Changed ' + state.test;
-    },
-
     Login(state) {
         state.Auth.user_id = localStorage.getItem('user_id');
         state.Auth.api_token = localStorage.getItem('api_token');
@@ -13,6 +9,7 @@ export default {
         state.Auth.mobile = localStorage.getItem('mobile');
         state.Auth.department = localStorage.getItem('department');
         state.Auth.title = localStorage.getItem('title');
+        state.Auth.is_handler = (localStorage.getItem('is_handler') == 'true') ? true : false;
         state.Auth.login =
             state.Auth.user_id !== null &&
             state.Auth.api_token !== null &&

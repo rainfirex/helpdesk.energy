@@ -12,6 +12,7 @@ export default {
         localStorage.setItem('mobile', data.mobile);
         localStorage.setItem('department', data.department);
         localStorage.setItem('title', data.title);
+        localStorage.setItem('is_handler', data.is_handler);
     },
 
     logout() {
@@ -23,5 +24,6 @@ export default {
         localStorage.removeItem('mobile');
         localStorage.removeItem('department');
         localStorage.removeItem('title');
+        localStorage.removeItem('is_handler');
     }
 }

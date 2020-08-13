@@ -3,8 +3,8 @@
         <div class="content">
             <h2 class="text-center">Мониторинг заявки</h2>
             <hr>
-            <div class="offset-1 col-md-10">
-                <div class="form-group">
+            <div class="col-12 offset-md-2 col-md-8">
+                <div class="form-group mb-4">
                     <label for="numberTicket">Номер заявки</label>
                     <input type="text" class="form-control" id="numberTicket" aria-describedby="numberTicketHelp" v-model="numberTicket">
                     <small id="numberTicketHelp" class="form-text text-muted">Введите номер заявки чтобы узнать статус.</small>
@@ -44,7 +44,7 @@
 
         data() {
             return {
-                numberTicket: 'ticket.5ef9ae5216cd03.71005696',
+                numberTicket: '',
 
                 ticket: null,
 
@@ -66,7 +66,7 @@
 
                 this.ticket = null;
 
-                const url = `/api/check-status-ticket/${this.numberTicket}`;
+                const url = `/api/user/tickets/check-status/number/${this.numberTicket}`;
 
                 this.changeLoaderBarMode(true);
 
@@ -99,8 +99,6 @@
 
 <style scoped>
     .monitor-ticket{
-        width: 80%;
-        margin: 0 auto;
     }
     .comment-your{
         border-radius: 3px;

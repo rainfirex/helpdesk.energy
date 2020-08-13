@@ -15,14 +15,13 @@
     import Footer from "./components/structures/Footer";
     import LoaderBar from "./components/structures/LoaderBar";
 
-    // import {mapState, mapGetters} from 'vuex';
-
     import Auth from "./Auth";
 
     export default {
         name:"Application",
-        props: {
-        },
+
+        props: {},
+
         components: {
             Header,
             Messenger,
@@ -30,23 +29,16 @@
             Footer,
             LoaderBar
         },
-        computed: {
 
-            // ...mapState(['test']),
-            // ...mapGetters(['test']),
-            // auth() {
-            //     return this.$store.state.Auth;
-            // },
-        },
+        methods: {},
+
         created() {
             Auth.init();
-        },
-        methods: {}
+        }
     };
 </script>
 
-<style>
-    html, body {height: 100%;}
+<style lang="scss">
 
     .wrapper{
         background-color: #d1d5d9;
@@ -54,14 +46,5 @@
         min-height: 100%;
         position: relative;
     }
-    .content{
-        width: 90%;
-        max-width: 1480px;
-        min-height: 500px;
-        margin: 15px auto;
-        background: #fafafa;
-        padding: 25px;
-        border-radius: 2px;
-        overflow: hidden;
-    }
+
 </style>

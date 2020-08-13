@@ -27,18 +27,19 @@ class ControllerMail extends Controller
 //            'Solodkov-NN@sakh.dvec.ru'
 //        ];
 
-        $filename = storage_path("app/files/email.txt");
-        $resource = fopen(($filename), "r");
-        while(!feof($resource)) {
-            $emails[] = trim(fgets($resource));
-        }
-
-        foreach ($emails as $email){
-
+//        $filename = storage_path("app/files/email.txt");
+//        $resource = fopen(($filename), "r");
+//        while(!feof($resource)) {
+//            $emails[] = trim(fgets($resource));
+//        }
+//
+//        foreach ($emails as $email){
+//
 //            Mail::to($email)->send(new FeedMail(''));
-
-            sleep(2);
-        }
+//
+//            sleep(2);
+//        }
+        Mail::to('rainfire491@gmail.com')->send(new FeedMail('dfgdfgsdfgdfg'));
         return 'Отработано!';
     }
 }

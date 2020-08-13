@@ -7,6 +7,7 @@ import UserTickets from "./components/pages/user/UserTickets";
 import ShowDetaleTicket from "./components/pages/user/ShowDetaleTicket";
 import HandlerTickets from "./components/pages/handler/HandlerTickets";
 import ShowDetaleHandlerTickets from "./components/pages/handler/ShowDetaleHandlerTickets";
+import UserTicketCompleted from "./components/pages/user/UserTicketCompleted";
 
 export default new VueRouter({
     routes : [
@@ -33,6 +34,9 @@ export default new VueRouter({
         },
         {
             path: '/handler-tickets/detale-ticket/:id', component: ShowDetaleHandlerTickets, name: 'handler-detale-ticket'
+        },
+        {
+            path: '/completed-tickets', component: UserTicketCompleted, name: 'user-completed-tickets'
         }
     ], mode : 'history'
 });

@@ -1,0 +1,17 @@
+[input-def]
+0=*
+
+[input2]
+0=/var/www/helpdesk.energy.ru/www
+
+[cmdline]
+0=
+
+[Dir Hist New Right Panel]
+0=/var/www/helpdesk.energy.ru/www
+
+[Dir Hist New Left Panel]
+0=/var/www/helpdesk.energy.ru/www/laravel
+1=/var/www/helpdesk.energy.ru/www
+2=/var/www/helpdesk.energy.ru
+3=/var/www

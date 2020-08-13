@@ -1,0 +1,68 @@
+@import "vars";
+@import "validations";
+
+html, body {height: 100%;}
+
+body{
+    font-family: $mainFont;
+}
+
+.content{
+    max-width: 1480px;
+    min-height: 500px;
+    margin: 15px auto;
+    background: #fafafa;
+    padding: 25px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+@media screen and (min-width: $desktopWidth){
+    .content {
+        width: 80%;
+    }
+    .table {
+
+    }
+}
+
+@media screen and (max-width: $desktopWidth) {
+    .content {
+        width: 80%;
+    }
+    .table {
+
+    }
+}
+
+@media screen and (max-width: $smDesktopWidth) {
+    .content {
+        width: 90%;
+    }
+    .table {
+
+    }
+}
+
+@media screen and (max-width: $tableWidth) {
+    .content {
+        width: 100%;
+    }
+    .table {
+        span, p, a, td, th{
+            font-size: 12px !important;
+        }
+    }
+}
+
+@media screen and (max-width: $phoneWidth) {
+    .content {
+        width: 100%;
+    }
+    .table {
+        span, p, a, td, th{
+            font-size: 9px !important;
+        }
+
+    }
+}
