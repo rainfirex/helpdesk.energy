@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('view');
+})->name('main');
+
+Route::get('/auth', function () {
+    return redirect(route('main'));
 });
 
 Route::view('/monitor-ticket', 'view');

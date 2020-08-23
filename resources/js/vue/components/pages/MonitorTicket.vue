@@ -44,6 +44,7 @@
 
         data() {
             return {
+
                 numberTicket: '',
 
                 ticket: null,

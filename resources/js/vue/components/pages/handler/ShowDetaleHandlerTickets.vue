@@ -1,128 +1,139 @@
 <template>
-    <div class="show-ticket">
-        <div class="content">
-            <h2 class="text-center">Заявка № {{ticket.number}}</h2>
-            <hr>
+    <div class="content">
+        <h2 class="text-center">Обработка заявки № {{ticket.number}}</h2>
+        <hr>
 
-            <div class="about-ticket">
+        <div class="about-ticket">
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>Создана: {{formatDateTime(ticket.created_at)}}</p>
-                    </div>
-                    <div class="offset-md-4 col-md-2 text-right" v-if="ticket.status_ticket">
-                        <p>Статус: <span
-                            :class="{'status-completed' : ticket.status_ticket.status === 'completed',
+            <div class="mb-4">
+                <button class="btn btn-secondary" @click="$router.go(-1)">Назад</button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Создана: {{formatDateTime(ticket.created_at)}}</p>
+                </div>
+                <div class="offset-md-3 col-md-3 text-md-right" v-if="ticket.status_ticket">
+                    <p>Статус: <span
+                        :class="{'status-completed' : ticket.status_ticket.status === 'completed',
                              'status-untouched' : ticket.status_ticket.status === 'untouched',
                              'status-performed' : ticket.status_ticket.status === 'performed',
-                             'status-rejected' : ticket.status_ticket.status === 'rejected'}">{{ticket.status_ticket.title}}</span></p>
-                    </div>
+                             'status-rejected' : ticket.status_ticket.status === 'rejected'}">{{ticket.status_ticket.title}}</span>
+                    </p>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>Категория: {{ticket.category}}</p>
-                    </div>
-                    <div class="offset-md-1 col-md-5 text-right">
-                        <p v-if="ticket.user">Автор: {{ticket.user.name}}</p>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>Название: {{ticket.title}}</p>
-                    </div>
-                    <div class="offset-md-1 col-md-5 text-right">
-                        <p>{{ticket.department}}</p>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><b>Контакты: </b></p>
-                        <p v-if="ticket.user">Телефон: {{ticket.user.phone}}</p>
-                        <p v-if="ticket.user">Почта: <a :href="'mailto:'+ticket.user.email">{{ticket.user.email}}</a></p>
-                    </div>
-                    <div class="offset-md-1 col-md-5 text-right">
-                        <p v-if="ticket.user">{{ticket.user.title}}</p>
-                    </div>
-                </div>
-
-                <div>
-                    <p><b>Содержание:</b></p>
-                    <div class="description p-3">
-                        {{ticket.description}}
-                    </div>
-                </div>
-
-                <Screenshots :screenshots="screenshots"></Screenshots>
-
-                <div class="mt-2 text-center">
-                    <div class="col-md-2 ml-auto mr-auto mb-2">
-                        <select class="form-control"
-                                v-model="status"
-                            :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
-                        >
-                            <option v-for="status in statusTicket" :value="status.id">{{status.title}}</option>
-                        </select>
-<!--                        <select class="form-control"-->
-<!--                                v-model="status"-->
-<!--                                :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"-->
-<!--                        >-->
-<!--                            <option v-for="status in statusTicket" :value="status.id">{{status.title}}</option>-->
-<!--                        </select>-->
-                    </div>
-                    <button class="btn btn-outline-dark"
-                            :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
-                            @click="handlerTicket()">Обработать заявку</button>
-<!--                    <button class="btn btn-outline-dark"-->
-<!--                            :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"-->
-<!--                            @click="handlerTicket()">Обработать заявку</button>-->
-                </div>
-
-                <hr>
-
-                <div class="comments mb-2">
-                    <p><b>Комментарий:</b></p>
-                    <div v-for="comment in comments">
-                        <div class="text-left">
-
-                            <div class="comment-adm p-2 pl-4 pr-4 m-1 mr-4" v-if="comment.user_id === +user.user_id">
-                                <p class="m-1 comment-created">{{formatDateTime(comment.created_at)}}</p>
-                                <p class="m-0"><span class="nick">Вы: </span> {{comment.description}}</p>
-                            </div>
-
-                            <div class="comment-user p-2 pl-4 pl-4 m-1 ml-4" v-else>
-                                <p class="m-1 comment-created">{{formatDateTime(comment.created_at)}}</p>
-                                <p class="m-0"><span class="nick">Пользователь: </span> {{comment.description}}</p>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="">
-                    <p><b>Написать комментарий:</b></p>
-                    <textarea class="form-control" rows="5"
-                              v-model="description"
-                              :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"
-                              :class="{'error-input': $v.description.$error}"
-                              @change="$v.description.$touch()"
-                    ></textarea>
-                    <small id="descriptionHelp" class="form-text text-muted" :class="{'is-error': $v.description.$error}">Текст комментария.
-                        <span v-if="!$v.description.required"  class="error-text" :class="{'error-show': !$v.description.required}">Поле пустое</span>
-                        <span v-if="!$v.description.minLength" class="error-text" :class="{'error-show': !$v.description.minLength}">Минимум 6 символов</span>
-                    </small>
-                    <div class="text-center m-2">
-                        <button class="btn btn-outline-dark"
-                                @click="createComment"
-                                :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"
-                        >Написать</button>
-                    </div>
-                </div>
-
-                <indicatorAutoUpdate :is_enable="intervalUpdateComments"/>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Категория: {{ticket.category}}</p>
+                </div>
+                <div class="offset-md-1 col-md-5 text-md-right">
+                    <p v-if="ticket.user">Автор: {{ticket.user.name}}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Название: {{ticket.title}}</p>
+                </div>
+                <div class="offset-md-1 col-md-5 text-md-right">
+                    <p>{{ticket.department}}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p><b>Контакты: </b></p>
+                    <p v-if="ticket.user">Телефон: {{ticket.user.phone}}</p>
+                    <p v-if="ticket.user">Почта: <a :href="'mailto:'+ticket.user.email">{{ticket.user.email}}</a></p>
+                </div>
+                <div class="offset-md-1 col-md-5 text-md-right">
+                    <p v-if="ticket.user">{{ticket.user.title}}</p>
+                </div>
+            </div>
+
+            <div>
+                <p><b>Содержание:</b></p>
+                <div class="description p-3">
+                    {{ticket.description}}
+                </div>
+            </div>
+
+            <Screenshots :screenshots="screenshots"></Screenshots>
+
+
+            <p><b>Изменить статус:</b></p>
+            <div class="mt-2 mb-5 text-center">
+                <div class="mb-2 offset-1 col-10 offset-md-3 col-md-6 offset-lg-4 col-lg-4">
+                    <select
+                        class="form-control"
+                        v-model="status"
+                        @change="selectDescriptionStatus()"
+                        :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')">
+                            <option v-for="status in statusTicket" :value="status.id">{{status.title}}</option>
+                    </select>
+                </div>
+
+                <div class="p-2 pl-4 pr-4 mt-3 mb-3 text-left description-status">
+                    {{statusDescription}}
+                    <p class="description-status-warning"><small><i><b>Перед изменением статуса</b> (Завершено, Отклонено) убедитесь, что комментарии с автором были завершены.</i></small></p>
+                </div>
+
+                <button class="btn btn-outline-dark"
+                        :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
+                        @click="handlerTicket()">Обработать заявку
+                </button>
+            </div>
+
+            <hr>
+
+            <p><b>Комментарии:</b></p>
+            <div class="comments mb-2 pl-md-5 pr-md-5">
+                <div v-for="comment in comments" :key="comment.ID">
+
+                    <div class="comment comment-handler" v-if="comment.is_handler">
+                        <p class="m-1 date-created">{{formatDateTime(comment.created_at)}}</p>
+                        <p class="mb-0 text-muted h6 pt-2 pb-2 comment-about">Обработчик: <span
+                            class="username">({{comment.user.name}})</span></p>
+                        <p>{{comment.description}}</p>
+                    </div>
+
+                    <div class="comment comment-user" v-else @mouseenter.self.stop="resetCommentNew(comment)">
+                        <p class="m-1 date-created">{{formatDateTime(comment.created_at)}} <span
+                            class="badge badge-primary ml-2" v-if="comment.is_new">New</span></p>
+                        <p class="mb-0 text-muted h6 pt-2 pb-2 comment-about">Автор: <span
+                            class="username">({{comment.user.name}})</span></p>
+                        <p>{{comment.description}}</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <p><b>Написать комментарий:</b></p>
+            <div class="create-comment">
+                <textarea class="form-control" rows="5"
+                          v-model="description"
+                          :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"
+                          :class="{'error-input': $v.description.$error}"
+                          @change="$v.description.$touch()"
+                ></textarea>
+                <small id="descriptionHelp" class="form-text text-muted" :class="{'is-error': $v.description.$error}">Текст
+                    комментария.
+                    <span v-if="!$v.description.required" class="error-text"
+                          :class="{'error-show': !$v.description.required}">Поле пустое</span>
+                    <span v-if="!$v.description.minLength" class="error-text"
+                          :class="{'error-show': !$v.description.minLength}">Минимум 6 символов</span>
+                </small>
+                <div class="text-center m-2">
+                    <button class="btn btn-outline-dark"
+                            @click="createComment"
+                            :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"
+                    >Написать
+                    </button>
+                </div>
+            </div>
+
+            <indicatorAutoUpdate :is_enable="intervalUpdateComments"/>
         </div>
     </div>
 </template>
@@ -131,7 +142,7 @@
     import {mapMutations, mapState} from 'vuex';
     import IndicatorAutoUpdate from "../../IndicatorAutoUpdate";
     import Screenshots from "../../Screenshots";
-    import { required, minLength } from 'vuelidate/lib/validators'
+    import {required, minLength} from 'vuelidate/lib/validators'
 
     export default {
 
@@ -143,23 +154,25 @@
         },
 
         data() {
-          return {
-              status: null,
+            return {
+                status: null,
 
-              description: null,
+                description: null,
 
-              ticket: {},
+                ticket: {},
 
-              comments: [],
+                comments: [],
 
-              screenshots: [],
+                screenshots: [],
 
-              errors: null,
+                errors: null,
 
-              statusTicket: [],
+                statusTicket: [],
 
-              intervalUpdateComments: null
-          }
+                statusDescription: '',
+
+                intervalUpdateComments: null
+            }
         },
 
         validations: {
@@ -176,7 +189,7 @@
             ticket_id() {
                 return this.$route.params.id;
             },
-            user(){
+            user() {
                 return this.$store.state.Auth;
             }
         },
@@ -198,6 +211,7 @@
                     if (response.data.success) {
                         this.statusTicket = response.data.statusTicket;
                         this.status = response.data.statusTicket[0].id;
+                        this.selectDescriptionStatus();
                     } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
@@ -237,7 +251,7 @@
                 });
             },
 
-            getComments(){
+            getComments() {
 
                 const url = `/api/handler/comments/ticket/${this.ticket_id}/get`;
 
@@ -261,7 +275,7 @@
                 });
             },
 
-            getTicketState(){
+            getTicketState() {
                 const url = `/api/handler/tickets/id/${this.ticket_id}/state`;
 
                 this.changeLoaderBarMode(true);
@@ -375,7 +389,7 @@
                 container.scrollTop = 0; //container.scrollHeight
             },
 
-            startUpdateComments(){
+            startUpdateComments() {
                 if (this.intervalUpdateComments === null) {
                     this.intervalUpdateComments = setInterval(() => {
                         this.getComments();
@@ -384,7 +398,7 @@
                 }
             },
 
-            stopUpdateComments(){
+            stopUpdateComments() {
                 if (this.intervalUpdateComments) {
                     clearInterval(this.intervalUpdateComments);
                     this.intervalUpdateComments = null;
@@ -405,7 +419,7 @@
 
                     this.changeLoaderBarMode(false);
 
-                    if (response.data.success){
+                    if (response.data.success) {
 
                     }
 
@@ -431,6 +445,35 @@
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
                 });
+            },
+
+            resetCommentNew(comment) {
+
+                if (comment.is_new !== 1)
+                    return;
+
+                const url = `/api/handler/comments/id/${comment.id}/reset-new`;
+
+                // this.changeLoaderBarMode(true);
+
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.user.api_token;
+                axios.put(url).then(response => {
+
+                    // this.changeLoaderBarMode(false);
+
+                    if (response.data.success) {
+                        comment.is_new = 0;
+                    }
+
+                }).catch(error => {
+                    // this.changeLoaderBarMode(false);
+                    this.errors = error.response.data.message;
+                    this.setTextMessenger({text: this.errors, status: 'error'});
+                });
+            },
+
+            selectDescriptionStatus() {
+                this.statusDescription = this.statusTicket[this.status -1].description;
             }
         },
 
@@ -440,7 +483,7 @@
             this.getComments();
             this.getScreenshots();
 
-            this.startUpdateComments()
+            this.startUpdateComments();
         },
 
         beforeDestroy() {
@@ -451,7 +494,7 @@
 
 <style scoped>
 
-    .description{
+    .description {
         background: #eff2f5;
         line-height: 30px;
         min-height: 120px;
@@ -459,53 +502,26 @@
         word-break: break-all;
     }
 
-    .status-performed{
-        color: #62ac6c;
-        font-size: 19px;
-        font-style: italic;
-    }
-
-    .status-completed{
-        color: #d68b46;
-        font-size: 19px;
-        font-style: italic;
-    }
-
-    .status-untouched{
-        color: #5e8fe7;
-        font-style: italic;
-        font-size: 19px;
-    }
-
-    .status-rejected{
-        color: #ff150e;
-        font-style: italic;
-        font-size: 19px;
-    }
-
-    .form {
-        width: 90%;
-        margin: 15px auto;
-        background: #fafafa;
-        padding: 25px;
+    .description-status{
+        min-height: 110px;
+        border: solid 1px #e48e8e;
         border-radius: 2px;
+        line-height: 25px;
+        background: #f1f1f1;
+        position: relative;
     }
 
-    .comments{
-        max-height: 450px;
-        overflow: auto;
+    .description-status-warning{
+        position: absolute;
+        bottom: 0;
+        background: #eaeaea;
     }
 
-    .comment-user{
-        border: solid 1px #eeeded;
-        background: #e3f3fa;
-    }
-
-    .comment-adm{
-        border: solid 1px #e9f3f6;
-        background: #fefefe;
-    }
-
-
-
+    /*.form {*/
+    /*    width: 90%;*/
+    /*    margin: 15px auto;*/
+    /*    background: #fafafa;*/
+    /*    padding: 25px;*/
+    /*    border-radius: 2px;*/
+    /*}*/
 </style>

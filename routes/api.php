@@ -70,6 +70,12 @@ Route::prefix('/user')->group(function() {
 
         Route::get('/ticket/{ticket_id}/get', 'user\ControllerComment@index');
 
+        Route::put('/id/{id}/reset-new', 'user\ControllerComment@resetNew');
+
+    });
+
+    Route::prefix('categories')->group(function () {
+        Route::get('', 'user\ControllerCategoryTicket@index');
     });
 
 });
@@ -108,6 +114,8 @@ Route::prefix('/handler')->group(function () {
         Route::get('/{id}/get', 'handler\ControllerHandlerComment@show');
 
         Route::get('/ticket/{ticket_id}/get', 'handler\ControllerHandlerComment@index');
+
+        Route::put('/id/{id}/reset-new', 'handler\ControllerHandlerComment@resetNew');
     });
 
 });

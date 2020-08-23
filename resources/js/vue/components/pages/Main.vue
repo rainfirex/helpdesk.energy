@@ -1,15 +1,17 @@
 <template>
-    <div class="main">
-        <div class="content menu">
+    <div class="content menu">
 
-            <div class="item mr-md-4 mr-sm-3" v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === auth.login">
-                <router-link class="nav-link" :to="pageCreateTicket.path" active-class="active">{{pageCreateTicket.title}}</router-link>
-            </div>
-            <div class="item" v-if="pageMonitorTicket.auth === 'both' || pageMonitorTicket.auth === auth.login">
-                <router-link class="nav-link" :to="pageMonitorTicket.path" active-class="active">{{pageMonitorTicket.title}}</router-link>
-            </div>
-
+        <div class="item mr-md-4 mr-sm-3"
+             v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === auth.login">
+            <router-link class="nav-link" :to="pageCreateTicket.path" active-class="active">{{pageCreateTicket.title}}
+            </router-link>
         </div>
+        <div class="item" v-if="pageMonitorTicket.auth === 'both' || pageMonitorTicket.auth === auth.login">
+            <router-link class="nav-link" :to="pageMonitorTicket.path" active-class="active">
+                {{pageMonitorTicket.title}}
+            </router-link>
+        </div>
+
     </div>
 </template>
 
@@ -17,7 +19,9 @@
     import {mapState} from 'vuex';
 
     export default {
+
         name: "Main",
+
         computed: {
             ...mapState(['navTicket']),
 
@@ -37,10 +41,6 @@
 </script>
 
 <style scoped>
-    .main{
-        width: 80%;
-        margin: 0 auto;
-    }
     .menu{
         display: flex;
         justify-content: center;

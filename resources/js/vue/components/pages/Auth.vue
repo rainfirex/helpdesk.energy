@@ -1,22 +1,29 @@
 <template>
-    <div class="auth">
-        <div class="content">
-            <div class="offset-lg-1 col-md-10">
-                <h2 class="text-center">Авторизация</h2>
-                <hr>
-                <div class="form-group">
-                    <label for="user">Пользователь</label>
-                    <input type="text" class="form-control" id="user" aria-describedby="userHelp" v-model="user.login">
-                    <small id="userHelp" class="form-text text-muted">Введите логин.</small>
-                </div>
-                <div class="form-group">
-                    <label for="password">Пароль</label>
-                    <input type="password" class="form-control" id="password" aria-describedby="passwordHelp" v-model="user.password">
-                    <small id="passwordHelp" class="form-text text-muted">Введите пароль.</small>
-                </div>
-                <div class="text-center">
-                    <button type="button" class="btn btn-outline-dark" @click="auth">Войти</button>
-                </div>
+    <div class="content">
+        <div class="offset-1 col-10 offset-md-2 col-md-8">
+            <h2 class="text-center">Авторизация</h2>
+            <hr>
+            <div class="form-group">
+                <label for="user">Пользователь</label>
+                <input type="text" class="form-control" id="user" aria-describedby="userHelp" v-model="login"
+                       :class="{'error-input': $v.login.$error}">
+                <small id="userHelp" class="form-text text-muted" :class="{'is-error': $v.login.$error}">Введите логин.
+                    <span v-if="!$v.login.required" class="error-text" :class="{'error-show': !$v.login.required}">Поле пустое</span>
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" class="form-control" id="password" aria-describedby="passwordHelp"
+                       v-model="password" :class="{'error-input': $v.password.$error}">
+                <small id="passwordHelp" class="form-text text-muted" :class="{'is-error': $v.password.$error}">Введите
+                    пароль.
+                    <span v-if="!$v.password.required" class="error-text"
+                          :class="{'error-show': !$v.password.required}">Поле пустое</span>
+                    <span v-if="!$v.password.minLength" class="error-text"
+                          :class="{'error-show': !$v.password.minLength}">Минимум 8 символа</span></small>
+            </div>
+            <div class="text-center">
+                <button type="button" class="btn btn-outline-dark" @click="auth">Войти</button>
             </div>
         </div>
     </div>
@@ -25,6 +32,7 @@
 <script>
     import Auth from "../../Auth";
     import {mapMutations} from 'vuex';
+    import { required, minLength } from 'vuelidate/lib/validators'
 
     export default {
         name: "Auth",
@@ -32,13 +40,29 @@
         data() {
           return{
 
-              user: {
-                  login: 'Poplavskiy_AA',
-                  password:'Qwerty12'
-              },
+              login: '',
+
+              password:'',
 
               errors: []
           }
+        },
+
+        computed: {
+            user(){
+                return this.$store.state.Auth;
+            },
+        },
+
+        validations: {
+            login: {
+                required
+            },
+
+            password: {
+                required,
+                minLength: minLength(8)
+            }
         },
 
         methods: {
@@ -46,8 +70,16 @@
             ...mapMutations(['setTextMessenger']),
 
             auth() {
+
+                this.$v.$touch();
+
+                if (this.$v.$invalid) {
+                    this.setTextMessenger({text: 'Заполните все поля!', status: 'error'});
+                    return false;
+                }
+
                 const url = `/api/auth/login`;
-                axios.post(url, {login: this.user.login, password: this.user.password}).then(response => {
+                axios.post(url, {login: this.login, password: this.password}).then(response => {
                     if (response.data.success) {
                         Auth.login(response.data);
                         Auth.init();
@@ -71,9 +103,9 @@
                         Auth.logout();
                         Auth.init();
                         this.$store.commit('setTextMessenger', {text: 'Вы вышли из системы', status: 'success'});
-                        if(this.$router.history.current.path !== '/') {
+                        // if(this.$router.history.current.path !== '/') {
                             this.$router.push('/');
-                        }
+                        // }
                     } else {
                         this.$store.commit('setTextMessenger', {text: response.data.message, status: 'error'});
                     }
@@ -83,13 +115,28 @@
                 });
             }
         },
+
+        mounted() {
+            document.body.addEventListener('keydown', e => {
+
+                if(e.code === 'Enter' && e.key === 'Enter') {
+                    this.auth();
+                }
+
+                if (e.code === 'Escape' && e.key === 'Escape') {
+                    if (this.login.length > 0 || this.password.length > 0) {
+                        if(confirm('Сбросить поля ввода?')) {
+                            this.login = '';
+                            this.password = '';
+                        }
+                    }
+                }
+
+            });
+        },
+
+        // beforeRouteEnter(to, from, next) {
+        //     console.log(this.$store);
+        // }
     }
 </script>
-
-<style scoped>
-    .auth{
-        width: 80%;
-        margin: 0 auto;
-    }
-
-</style>

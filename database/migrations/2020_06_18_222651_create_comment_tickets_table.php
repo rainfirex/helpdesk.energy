@@ -20,6 +20,8 @@ class CreateCommentTicketsTable extends Migration
             $table->bigInteger('ticket_id')->unsigned();
             $table->foreign('ticket_id')->references('id')->on('tickets');
             $table->text('description');
+            $table->boolean('is_handler');
+            $table->boolean('is_new');
             $table->timestamps();
         });
     }

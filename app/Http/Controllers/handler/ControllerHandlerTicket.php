@@ -65,7 +65,8 @@ class ControllerHandlerTicket extends Controller
             },
             'performerUser' => function($query) {
                 $query->select('id','email', 'name', 'phone', 'title');
-            }
+            },
+            'isNewHandlerComment'
         ]);
 
         return response()->json([
@@ -202,7 +203,9 @@ class ControllerHandlerTicket extends Controller
             CommentTicket::create([
                 'user_id'   => $user->id,
                 'ticket_id' => $ticket->id,
-                'description' => sprintf('Статус заявки изменен на: "%s"', $status->title)
+                'description' => sprintf('Статус заявки изменен на: "%s"', $status->title),
+                'is_handler'  => true,
+                'is_new'      => true
             ]);
 
             if (!empty($ticket->user->email)) {

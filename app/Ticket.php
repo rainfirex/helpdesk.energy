@@ -30,4 +30,16 @@ class Ticket extends Model
     public function performerUser() {
         return $this->hasOne(User::class, 'id', 'performer_user_id');
     }
+
+    public function isNewUserComment() {
+        return $this->hasMany(CommentTicket::class, 'ticket_id', 'id')
+            ->where('is_new', '=', '1')
+            ->where('is_handler', '=', '1');
+    }
+
+    public function isNewHandlerComment() {
+        return $this->hasMany(CommentTicket::class, 'ticket_id', 'id')
+            ->where('is_new', '=', '1')
+            ->where('is_handler', '=', '0');
+    }
 }

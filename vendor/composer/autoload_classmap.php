@@ -6,12 +6,14 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\CategoryTicket' => $baseDir . '/app/CategoryTicket.php',
     'App\\CommentTicket' => $baseDir . '/app/CommentTicket.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\ControllerAuth' => $baseDir . '/app/Http/Controllers/ControllerAuth.php',
     'App\\Http\\Controllers\\ControllerMail' => $baseDir . '/app/Http/Controllers/ControllerMail.php',
+    'App\\Http\\Controllers\\ControllerScreenshots' => $baseDir . '/app/Http/Controllers/ControllerScreenshots.php',
     'App\\Http\\Controllers\\handler\\ControllerHandlerComment' => $baseDir . '/app/Http/Controllers/handler/ControllerHandlerComment.php',
     'App\\Http\\Controllers\\handler\\ControllerHandlerStatusTicket' => $baseDir . '/app/Http/Controllers/handler/ControllerHandlerStatusTicket.php',
     'App\\Http\\Controllers\\handler\\ControllerHandlerTicket' => $baseDir . '/app/Http/Controllers/handler/ControllerHandlerTicket.php',
@@ -31,6 +33,10 @@ return array(
     'App\\Http\\Middleware\\TrustProxies' => $baseDir . '/app/Http/Middleware/TrustProxies.php',
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
     'App\\Mail\\FeedMail' => $baseDir . '/app/Mail/FeedMail.php',
+    'App\\Mail\\MailHandlerCommentNew' => $baseDir . '/app/Mail/MailHandlerCommentNew.php',
+    'App\\Mail\\MailHandlerTicket' => $baseDir . '/app/Mail/MailHandlerTicket.php',
+    'App\\Mail\\MailTicketCompleted' => $baseDir . '/app/Mail/MailTicketCompleted.php',
+    'App\\Mail\\MailTicketCreate' => $baseDir . '/app/Mail/MailTicketCreate.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Providers\\AuthServiceProvider' => $baseDir . '/app/Providers/AuthServiceProvider.php',
     'App\\Providers\\BroadcastServiceProvider' => $baseDir . '/app/Providers/BroadcastServiceProvider.php',
@@ -125,6 +131,7 @@ return array(
     'Carbon\\Traits\\Units' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Units.php',
     'Carbon\\Traits\\Week' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Week.php',
     'Carbon\\Translator' => $vendorDir . '/nesbot/carbon/src/Carbon/Translator.php',
+    'CategoryTicket' => $baseDir . '/database/seeds/CategoryTicket.php',
     'Cron\\AbstractField' => $vendorDir . '/dragonmantank/cron-expression/src/Cron/AbstractField.php',
     'Cron\\CronExpression' => $vendorDir . '/dragonmantank/cron-expression/src/Cron/CronExpression.php',
     'Cron\\DayOfMonthField' => $vendorDir . '/dragonmantank/cron-expression/src/Cron/DayOfMonthField.php',

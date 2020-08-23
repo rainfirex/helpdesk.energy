@@ -1,42 +1,50 @@
 <template>
-    <div class="user-tickets">
-        <div class="content">
-            <h2 class="text-center">Список активных заявок</h2>
-            <hr>
+    <div class="content">
+        <h2 class="text-center">Список активных заявок</h2>
+        <hr>
 
-            <div class="navigator">
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><router-link class="p-2" :to="pageCreateTicket.path" v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === user.login">{{pageCreateTicket.title}}</router-link></li>
-                    <li class="breadcrumb-item"><router-link class="p-2" :to="pageCompletedTicket.path" v-if="pageCompletedTicket.auth === 'both' || pageCompletedTicket.auth === user.login">{{pageCompletedTicket.title}}</router-link></li>
-                </ul>
-            </div>
+        <div class="navigator">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <router-link class="p-2" :to="pageCreateTicket.path"
+                                 v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === user.login">
+                        {{pageCreateTicket.title}}
+                    </router-link>
+                </li>
+                <li class="breadcrumb-item">
+                    <router-link class="p-2" :to="pageCompletedTicket.path"
+                                 v-if="pageCompletedTicket.auth === 'both' || pageCompletedTicket.auth === user.login">
+                        {{pageCompletedTicket.title}}
+                    </router-link>
+                </li>
+            </ul>
+        </div>
 
-            <div class="search mt-4 mb-4">
-                <div class="col-12 offset-md-2 col-md-10 offset-lg-4 col-lg-8">
-                    <div class="row">
-                        <div class="col-10 offset-md-2 col-md-8 offset-lg-4 col-lg-6">
-                            <input type="text" class="form-control" placeholder="номер, название или текст содержимого"
-                                   v-model="findText"
-                                   @input="inputFindText"
-                                   @keydown.enter="findTickets"
-                                   @keydown.esc="findText='';inputFindText()"
-                            >
-                            <p class="mt-1 mb-0 p-1 search-label"><i>Поиск производится по всем статусам</i></p>
-                        </div>
-                        <div class="col-2">
-                            <button class="btn btn-outline-primary" @click="findTickets">Поиск</button>
-                        </div>
+        <div class="search mt-4 mb-4">
+            <div class="col-12 offset-md-2 col-md-10 offset-lg-4 col-lg-8">
+                <div class="row">
+                    <div class="col-10 offset-md-2 col-md-8 offset-lg-4 col-lg-6">
+                        <input type="text" class="form-control" placeholder="номер, название или текст содержимого"
+                               v-model="findText"
+                               @input="inputFindText"
+                               @keydown.enter="findTickets"
+                               @keydown.esc="findText='';inputFindText()"
+                        >
+                        <p class="mt-1 mb-0 p-1 search-label"><i>Поиск производится по всем статусам</i></p>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-outline-primary" @click="findTickets">Поиск</button>
                     </div>
                 </div>
             </div>
-
-            <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
-
-            <div class="container-list">
-                <ListTicket v-bind:tickets="tickets"></ListTicket>
-            </div>
-
         </div>
+
+        <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
+
+        <div class="container-list">
+            <ListTicket v-bind:tickets="tickets"></ListTicket>
+        </div>
+
     </div>
 </template>
 
@@ -223,5 +231,4 @@
     .search-label{
         font-size: 12px;
     }
-
 </style>

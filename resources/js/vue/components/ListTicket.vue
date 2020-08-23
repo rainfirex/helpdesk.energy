@@ -13,6 +13,8 @@
                 <div class="row">
                     <div class="offset-md-1 col-md-7">
                         <p class="item-ticket-title mb-1">Название: {{ticket.title}}</p>
+
+                        <p v-if="ticket.is_new_user_comment && ticket.is_new_user_comment.length > 0">Новых комментариев: <span class="badge badge-primary">{{ticket.is_new_user_comment.length}}</span></p>
                     </div>
                     <div class="offset-md-1 col-md-3">
                         <p>Статус:
@@ -21,7 +23,6 @@
                              'status-performed' : ticket.status_ticket.status === 'performed',
                              'status-rejected' : ticket.status_ticket.status === 'rejected'}"> {{ticket.status_ticket.title}}</span>
                         </p>
-
                     </div>
                 </div>
             </router-link>
@@ -66,28 +67,5 @@
     .item-ticket-title{
         font-size: 1.2em;
         color: #545454;
-    }
-    .status-performed{
-        color: #62ac6c;
-        font-size: 19px;
-        font-style: italic;
-    }
-
-    .status-completed{
-        color: #d68b46;
-        font-size: 19px;
-        font-style: italic;
-    }
-
-    .status-untouched{
-        color: #5e8fe7;
-        font-style: italic;
-        font-size: 19px;
-    }
-
-    .status-rejected{
-        color: #ff150e;
-        font-style: italic;
-        font-size: 19px;
     }
 </style>

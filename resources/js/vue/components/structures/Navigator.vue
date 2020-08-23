@@ -26,24 +26,25 @@
                 </ul>
             </div>
 
-            <div class="col-12 text-md-right col-md-5 row" v-if="auth.login">
+            <div class="col-12 text-md-right col-md-5 row">
                 <div class="col-2 offset-1 offset-md-7 col-md-2">
                     <span class="user" @click="isShowUser = !isShowUser">{{letter}}</span>
                 </div>
-                <div class="col-2 offset-7 offset-md-1 col-md-2 align-self-center">
+                <div class="col-2 offset-7 offset-md-1 col-md-2 align-self-center" v-if="auth.login">
                     <button class="btn btn-light btn-sm p-1" @click="logout()">Выход</button>
                 </div>
             </div>
 
         </div>
-
-        <div class="col-12 offset-md-7 col-md-5 offset-lg-9 user-panel p-1" v-if="isShowUser && username">
-            <div>
-                <p class="mb-0 p-2">Вы авторизованы как "{{username}}"</p>
-                <p class="mb-0 p-2">{{department}}</p>
-            </div>
-            <div>
-                <p class="mb-0 p-2">Почта: "{{email}}"</p>
+        <div class="col-12 offset-md-7 col-md-3 offset-lg-9 user-panel p-0" v-if="isShowUser">
+            <div v-if="isShowUser && username" class="p-1">
+                <div>
+                    <p class="mb-0 p-2">Вы авторизованы как "{{username}}"</p>
+                    <p class="mb-0 p-2">{{department}}</p>
+                </div>
+                <div>
+                    <p class="mb-0 p-2">Почта: "{{email}}"</p>
+                </div>
             </div>
 
             <div class="mobile-menu d-md-none d-lg-none d-xl-none d-sm-block">
@@ -137,6 +138,12 @@
                 }).catch(error => {
                     this.errors = error.response.data.errors;
                     this.$store.commit('setTextMessenger', {text: this.errors, status: 'error'});
+
+                    if(error.response.data.message === 'Unauthenticated.') {
+                        Auth.logout();
+                        Auth.init();
+                        this.$router.push('/');
+                    }
                 });
             }
 

@@ -16,7 +16,7 @@ class ControllerComment extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api')->only('index', 'store', 'show');
+        $this->middleware('auth:api')->only('index', 'store', 'show', 'resetNew');
     }
 
     /**
@@ -29,10 +29,14 @@ class ControllerComment extends Controller
         $user = Auth::user();
 
         if ($user) {
-            $comments = CommentTicket::select('created_at','description','user_id')
+            $comments = CommentTicket::select('id', 'created_at','description','user_id', 'is_handler', 'is_new')
                 ->where('ticket_id', $ticket_id)
                 ->orderBy('created_at', 'DESC')
                 ->get();
+
+            $comments->load(['user' => function($query){
+                $query->select('id', 'name', 'title');
+            }]);
 
             return response()->json([
                 'success' => true,
@@ -89,7 +93,9 @@ class ControllerComment extends Controller
             $comment = CommentTicket::create([
                 'user_id'   => $user->id,
                 'ticket_id' => $request->input('ticket_id'),
-                'description' => $request->input('description')
+                'description' => $request->input('description'),
+                'is_handler' => false,
+                'is_new'     => true
             ]);
 
             return response()->json([
@@ -156,5 +162,20 @@ class ControllerComment extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Сбросить флаг new
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetNew($id) {
+        $comment = CommentTicket::find($id);
+        $comment->is_new = false;
+        $comment->save();
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\handler;
 
 use App\CommentTicket;
+use App\Mail\MailHandlerCommentNew;
+use App\Mail\MailHandlerTicket;
 use App\StatusTicket;
 use App\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 use App\Http\Controllers\Controller;
@@ -15,7 +18,7 @@ class ControllerHandlerComment extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api')->only('index','store', 'show');
+        $this->middleware('auth:api')->only('index','store', 'show', 'resetNew');
         $this->middleware('check.handler');
     }
 
@@ -23,10 +26,14 @@ class ControllerHandlerComment extends Controller
         $user = Auth::user();
 
         if ($user) {
-            $comments = CommentTicket::select('created_at','description','user_id')
+            $comments = CommentTicket::select('id', 'created_at','description','user_id', 'is_handler', 'is_new')
                 ->where('ticket_id', $ticket_id)
                 ->orderBy('created_at', 'DESC')
                 ->get();
+
+            $comments->load(['user' => function($query){
+                $query->select('id', 'name', 'title');
+            }]);
 
             return response()->json([
                 'success' => true,
@@ -63,10 +70,18 @@ class ControllerHandlerComment extends Controller
                 ]);
 
             $comment = CommentTicket::create([
-                'user_id'   => $user->id,
-                'ticket_id' => $request->input('ticket_id'),
-                'description' => $request->input('description')
+                'user_id'     => $user->id,
+                'ticket_id'   => $request->input('ticket_id'),
+                'description' => trim($request->input('description')),
+                'is_handler'  => true,
+                'is_new'      => true
             ]);
+
+
+            if (!empty($ticket->user->email)) {
+                Mail::to($ticket->user->email)->send(new MailHandlerCommentNew($ticket->user->name, $ticket->title, $ticket->number, $user->name, trim($request->input('description') )));
+            }
+
 
             return response()->json([
                 'success' => true,
@@ -84,6 +99,11 @@ class ControllerHandlerComment extends Controller
 
             $comment = CommentTicket::find($id);
 
+            $comment->load(['user' => function($query){
+                $query->select('id', 'name', 'title');
+            }]);
+
+
             return response()->json([
                 'success' => true,
                 'comment' => $comment
@@ -91,5 +111,20 @@ class ControllerHandlerComment extends Controller
         }
         else
             return response()->json(['success' => false, 'message' => 'Пользователь не авторизирован!']);
+    }
+
+    /**
+     * Сбросить флаг new
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetNew($id) {
+        $comment = CommentTicket::find($id);
+        $comment->is_new = false;
+        $comment->save();
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

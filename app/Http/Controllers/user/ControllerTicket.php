@@ -34,8 +34,6 @@ class ControllerTicket extends Controller
      */
     public function index(int $page = 1)
     {
-        // - untouched, performed
-
         $user = Auth::user();
 
         if ($user) {
@@ -56,7 +54,12 @@ class ControllerTicket extends Controller
 //                ->orderBy('id', 'DESC')
 //                ->get();
 
-            $tickets->load('statusTicket');
+            $tickets->load([
+                'statusTicket',
+                'isNewUserComment' => function($query) {
+                    $query->select('ticket_id');
+                }
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -307,7 +310,9 @@ class ControllerTicket extends Controller
             $comment = CommentTicket::create([
                 'user_id'   => $user->id,
                 'ticket_id' => $id,
-                'description' => '(Заявка завершена вами) '. $request->input('description')
+                'description' => '(Заявка завершена автором) '. $request->input('description'),
+                'is_handler' => false,
+                'is_new'     => true
             ]);
 
             $ticket->status_id = StatusTicket::ST_COMPLETED;

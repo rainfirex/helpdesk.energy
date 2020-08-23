@@ -9,11 +9,13 @@ class CommentTicket extends Model
     protected $fillable = [
         'user_id',
         'ticket_id',
-        'description'
+        'description',
+        'is_handler',
+        'is_new'
     ];
 
     public function user() {
-
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     public function ticket() {

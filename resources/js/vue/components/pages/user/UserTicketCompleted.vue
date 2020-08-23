@@ -1,23 +1,30 @@
 <template>
-    <div class="user-tickets">
-        <div class="content">
-            <h2 class="text-center">Список завершенных заявок</h2>
-            <hr>
+    <div class="content">
+        <h2 class="text-center">Список завершенных заявок</h2>
+        <hr>
 
-            <div class="navigator">
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><router-link class="p-2" :to="pageCreateTicket.path" v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === user.login">{{pageCreateTicket.title}}</router-link></li>
-                    <li class="breadcrumb-item"><router-link class="p-2" :to="pageTickets.path" v-if="pageTickets.auth === 'both' || pageTickets.auth === user.login">Активные заявки</router-link></li>
-                </ul>
-            </div>
-
-            <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
-
-            <div class="container-list">
-                <ListTicket v-bind:tickets="tickets"></ListTicket>
-            </div>
-
+        <div class="navigator">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <router-link class="p-2" :to="pageCreateTicket.path"
+                                 v-if="pageCreateTicket.auth === 'both' || pageCreateTicket.auth === user.login">
+                        {{pageCreateTicket.title}}
+                    </router-link>
+                </li>
+                <li class="breadcrumb-item">
+                    <router-link class="p-2" :to="pageTickets.path"
+                                 v-if="pageTickets.auth === 'both' || pageTickets.auth === user.login">Активные заявки
+                    </router-link>
+                </li>
+            </ul>
         </div>
+
+        <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
+
+        <div class="container-list">
+            <ListTicket v-bind:tickets="tickets"></ListTicket>
+        </div>
+
     </div>
 </template>
 

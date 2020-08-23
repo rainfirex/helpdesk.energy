@@ -475,12 +475,14 @@ class ComposerStaticInit242a0e2d0017cd5c9ae17460ecd678de
     );
 
     public static $classMap = array (
+        'App\\CategoryTicket' => __DIR__ . '/../..' . '/app/CategoryTicket.php',
         'App\\CommentTicket' => __DIR__ . '/../..' . '/app/CommentTicket.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\ControllerAuth' => __DIR__ . '/../..' . '/app/Http/Controllers/ControllerAuth.php',
         'App\\Http\\Controllers\\ControllerMail' => __DIR__ . '/../..' . '/app/Http/Controllers/ControllerMail.php',
+        'App\\Http\\Controllers\\ControllerScreenshots' => __DIR__ . '/../..' . '/app/Http/Controllers/ControllerScreenshots.php',
         'App\\Http\\Controllers\\handler\\ControllerHandlerComment' => __DIR__ . '/../..' . '/app/Http/Controllers/handler/ControllerHandlerComment.php',
         'App\\Http\\Controllers\\handler\\ControllerHandlerStatusTicket' => __DIR__ . '/../..' . '/app/Http/Controllers/handler/ControllerHandlerStatusTicket.php',
         'App\\Http\\Controllers\\handler\\ControllerHandlerTicket' => __DIR__ . '/../..' . '/app/Http/Controllers/handler/ControllerHandlerTicket.php',
@@ -500,6 +502,10 @@ class ComposerStaticInit242a0e2d0017cd5c9ae17460ecd678de
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Mail\\FeedMail' => __DIR__ . '/../..' . '/app/Mail/FeedMail.php',
+        'App\\Mail\\MailHandlerCommentNew' => __DIR__ . '/../..' . '/app/Mail/MailHandlerCommentNew.php',
+        'App\\Mail\\MailHandlerTicket' => __DIR__ . '/../..' . '/app/Mail/MailHandlerTicket.php',
+        'App\\Mail\\MailTicketCompleted' => __DIR__ . '/../..' . '/app/Mail/MailTicketCompleted.php',
+        'App\\Mail\\MailTicketCreate' => __DIR__ . '/../..' . '/app/Mail/MailTicketCreate.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
@@ -594,6 +600,7 @@ class ComposerStaticInit242a0e2d0017cd5c9ae17460ecd678de
         'Carbon\\Traits\\Units' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Traits/Units.php',
         'Carbon\\Traits\\Week' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Traits/Week.php',
         'Carbon\\Translator' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Translator.php',
+        'CategoryTicket' => __DIR__ . '/../..' . '/database/seeds/CategoryTicket.php',
         'Cron\\AbstractField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/AbstractField.php',
         'Cron\\CronExpression' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/CronExpression.php',
         'Cron\\DayOfMonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/DayOfMonthField.php',

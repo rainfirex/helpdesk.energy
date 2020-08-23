@@ -125,4 +125,5 @@ class ControllerAuth extends Controller
            'success' => true
         ]);
     }
+
 }

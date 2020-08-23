@@ -1,5 +1,7 @@
 @import "vars";
 @import "validations";
+@import "status";
+@import "comments";
 
 html, body {height: 100%;}
 
@@ -19,7 +21,7 @@ body{
 
 @media screen and (min-width: $desktopWidth){
     .content {
-        width: 80%;
+        width: 60%;
     }
     .table {
 
@@ -63,6 +65,5 @@ body{
         span, p, a, td, th{
             font-size: 9px !important;
         }
-
     }
 }

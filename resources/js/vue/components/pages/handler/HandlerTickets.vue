@@ -1,90 +1,111 @@
 <template>
-    <div class="handler-tickets">
-        <div class="content">
-            <h2 class="text-center">Обработка заявок</h2>
-            <hr>
+    <div class="content">
+        <h2 class="text-center">Обработка заявок</h2>
+        <hr>
 
-            <div class="row">
-                <div class="offset-1 col-10 text-center mb-3 container-count">
-                    <button class="btn btn-success"   @click="setTypeTicket('all')">Все <span class="badge badge-light">{{typeCount.all}}</span></button>
-                    <button class="btn btn-primary"   @click="setTypeTicket('new')">Новые <span class="badge badge-light">{{typeCount.new}}</span></button>
-                    <button class="btn btn-secondary" @click="setTypeTicket('completed')">Завершенные <span class="badge badge-light">{{typeCount.completed}}</span></button>
-                    <button class="btn btn-secondary" @click="setTypeTicket('untouched')">Не начатые <span class="badge badge-light">{{typeCount.untouched}}</span></button>
-                    <button class="btn btn-secondary" @click="setTypeTicket('rejected')">Отклоненные <span class="badge badge-light">{{typeCount.rejected}}</span></button>
-                    <button class="btn btn-secondary" @click="setTypeTicket('performed')">Выполняются <span class="badge badge-light">{{typeCount.performed}}</span></button>
-                </div>
+        <div class="row">
+            <div class="offset-1 col-10 text-center mb-3 container-count">
+                <button class="btn btn-success" @click="setTypeTicket('all')">Все <span class="badge badge-light">{{typeCount.all}}</span>
+                </button>
+                <button class="btn btn-primary" @click="setTypeTicket('new')">Новые <span class="badge badge-light">{{typeCount.new}}</span>
+                </button>
+                <button class="btn btn-secondary" @click="setTypeTicket('completed')">Завершенные <span
+                    class="badge badge-light">{{typeCount.completed}}</span></button>
+                <button class="btn btn-secondary" @click="setTypeTicket('untouched')">Не начатые <span
+                    class="badge badge-light">{{typeCount.untouched}}</span></button>
+                <button class="btn btn-secondary" @click="setTypeTicket('rejected')">Отклоненные <span
+                    class="badge badge-light">{{typeCount.rejected}}</span></button>
+                <button class="btn btn-secondary" @click="setTypeTicket('performed')">Выполняются <span
+                    class="badge badge-light">{{typeCount.performed}}</span></button>
             </div>
+        </div>
 
-            <div class="row mt-4 mb-4">
-                <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getAllTickets($event)"/>
+        <div class="row mt-4 mb-4">
+            <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getAllTickets($event)"/>
 
-                <div class="col-12 col-md-7 offset-lg-2 col-lg-5">
-                    <div class="row">
-                        <div class="col-8">
-                            <input type="text" class="form-control" placeholder="Что ищем?"
-                                   v-model="findText"
-                                   @input="inputFindText"
-                                   @keydown.enter="findTickets"
-                                   @keydown.esc="findText=''; inputFindText()">
-                        </div>
-                        <div class="col-2">
-                            <button class="btn btn-outline-primary" @click="findTickets">Поиск</button>
-                        </div>
+            <div class="col-12 col-md-7 offset-lg-2 col-lg-5">
+                <div class="row">
+                    <div class="col-8">
+                        <input type="text" class="form-control" placeholder="Что ищем?"
+                               v-model="findText"
+                               @input="inputFindText"
+                               @keydown.enter="findTickets"
+                               @keydown.esc="findText=''; inputFindText()">
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-outline-primary" @click="findTickets">Поиск</button>
                     </div>
                 </div>
             </div>
-
-            <div class="container-table table-responsive">
-                <table class="table">
-                    <tr>
-                        <th>Заявка</th>
-                        <th>Дата</th>
-                        <th class="d-none d-md-block">Категория</th>
-                        <th>Обратная связь</th>
-                        <th>Автор</th>
-                        <th class="d-none d-md-block">Исполнитель</th>
-                        <th>Статус</th>
-                    </tr>
-
-                    <tr v-for="ticket in tickets" @dblclick="openDetale(ticket.id)">
-                        <td>
-                            <span class="ticket-number"><b>№</b> {{ticket.number}}</span>
-                            <p class="ticket-title mb-0">{{ticket.title}}</p>
-                        </td>
-                        <td>
-                            <p class="mb-1 ticket-date-time">{{formatDate(ticket.created_at)}}</p>
-                            <p class="mb-0 ticket-date-time">{{formatTime(ticket.created_at)}}</p>
-                        </td>
-                        <td class="d-none d-md-block">{{ticket.category}}</td>
-                        <td>
-                            <span>{{ticket.phone}}</span>
-                            <p class="ticket-email mb-0">
-                                <a :href="'mailto:'+ticket.user.email">{{ticket.user.email}}</a>
-                            </p>
-                        </td>
-                        <td>
-                            <span class="ticket-user">{{ticket.user.name}}</span>
-                            <p class="ticket-department mb-0"><b>Отдел:</b> {{ticket.department}}</p>
-                        </td>
-                        <td v-if="ticket.performer_user" class="d-none d-md-block">
-                            <span class="ticket-user">{{ticket.performer_user.name}}</span>
-                            <p class="ticket-email mb-0">
-                                <a :href="'mailto:'+ticket.performer_user.email">{{ticket.performer_user.email}}</a>
-                            </p>
-                        </td>
-                        <td v-else></td>
-                        <td>
-                            <p class="mb-1">{{ticket.status_ticket.title}}</p>
-                            <h4 class="mb-0"><span class="badge badge-primary" v-if="ticket.is_new">New</span></h4>
-
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <indicatorAutoUpdate :is_enable="intervalUpdateTicket"/>
-
         </div>
+
+        <div class="container-table table-responsive">
+            <table class="table">
+                <tr>
+                    <th>Заявка</th>
+                    <th>Дата</th>
+                    <th class="d-none d-md-block">Категория</th>
+                    <th>Обратная связь</th>
+                    <th>Автор</th>
+                    <th class="d-none d-md-block">Исполнитель</th>
+                    <th>Статус</th>
+                </tr>
+
+                <tr v-for="ticket in tickets" @dblclick="openDetale(ticket.id)">
+                    <td>
+                        <span class="ticket-number"><b>№</b> {{ticket.number}}</span>
+                        <p class="ticket-title mb-0">{{ticket.title}}</p>
+                        <p v-if="ticket.is_new_handler_comment && ticket.is_new_handler_comment.length > 0">Новых комментариев: <span class="badge badge-primary">{{ticket.is_new_handler_comment.length}}</span></p>
+                    </td>
+                    <td>
+                        <p class="mb-1 ticket-date-time">{{formatDate(ticket.created_at)}}</p>
+                        <p class="mb-0 ticket-date-time">{{formatTime(ticket.created_at)}}</p>
+                    </td>
+                    <td class="d-none d-md-block">{{ticket.category}}</td>
+                    <td>
+                        <span>{{ticket.phone}}</span>
+                        <p class="ticket-email mb-0">
+                            <a :href="'mailto:'+ticket.user.email">{{ticket.user.email}}</a>
+                        </p>
+                    </td>
+                    <td>
+                        <span class="ticket-user">{{ticket.user.name}}</span>
+                        <p class="ticket-department mb-0"><b>Отдел:</b> {{ticket.department}}</p>
+                    </td>
+                    <td v-if="ticket.performer_user" class="d-none d-md-block">
+                        <span class="ticket-user">{{ticket.performer_user.name}}</span>
+                        <p class="ticket-email mb-0">
+                            <a :href="'mailto:'+ticket.performer_user.email">{{ticket.performer_user.email}}</a>
+                        </p>
+                    </td>
+                    <td v-else></td>
+                    <td>
+                        <p class="mb-1">{{ticket.status_ticket.title}}</p>
+                        <h4 class="mb-0"><span class="badge badge-primary" v-if="ticket.is_new">New</span></h4>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-12 offset-md-1 col-md-10 mb-5 p-0">
+            <h3 class="text-center">Заявки</h3>
+            <Piechart
+                :size="{width:400, height:400}"
+                :data_obj="[
+                    {title:'Завершенные', value:typeCount.completed, color: '#28a745'},
+                    {title:'Не начатые', value:typeCount.untouched, color: '#efc934'},
+                    {title:'Отклоненные', value:typeCount.rejected, color: '#ff150e'},
+                    {title: 'Выполняются', value:typeCount.performed, color: '#91f6ff'}
+
+                ]"
+                :colors="['#efc934', '#0069d9', '#28a745', '#ff150e']"
+                :doughnutHoleSize="0.6"
+            ></Piechart>
+        </div>
+
+        <indicatorAutoUpdate :is_enable="intervalUpdateTicket"/>
+
     </div>
 </template>
 
@@ -93,41 +114,44 @@
     import {mapMutations, mapState} from 'vuex';
 
     import indicatorAutoUpdate from '../../IndicatorAutoUpdate';
+    import Piechart from "../../Piechart";
 
     export default {
         name: "HandlerTickets",
 
         components: {
             indicatorAutoUpdate,
-            Pagination
+            Pagination,
+            Piechart
         },
 
         data() {
 
-          return {
-              findText: '',
+            return {
 
-              countPage: 0,
+                findText: '',
 
-              currentPage: 0,
+                countPage: 0,
 
-              tickets: [],
+                currentPage: 0,
 
-              errors: null,
+                tickets: [],
 
-              intervalUpdateTicket: null,
+                errors: null,
 
-              typeCount: {
-                  all: 0,
-                  new: 0,
-                  completed: 0,
-                  performed: 8,
-                  rejected: 3,
-                  untouched : 0
-              },
+                intervalUpdateTicket: null,
 
-              typeTicket: 'all'
-          }
+                typeCount: {
+                    all: 0,
+                    new: 0,
+                    completed: 0,
+                    performed: 8,
+                    rejected: 3,
+                    untouched: 0
+                },
+
+                typeTicket: 'all'
+            }
 
         },
 
@@ -145,7 +169,7 @@
 
             ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
 
-            setTypeTicket(status){
+            setTypeTicket(status) {
                 this.typeTicket = status;
                 this.getCountPage();
                 this.getAllTickets(1);
@@ -203,7 +227,7 @@
             },
 
             openDetale(id) {
-                this.$router.push({ name: 'handler-detale-ticket', params: { id: id } });
+                this.$router.push({name: 'handler-detale-ticket', params: {id: id}});
             },
 
             startIntervalUpdateAllTicket() {
@@ -215,7 +239,7 @@
                 }
             },
 
-            stopIntervalUpdateAllTickets(){
+            stopIntervalUpdateAllTickets() {
                 if (this.intervalUpdateTicket) {
                     clearInterval(this.intervalUpdateTicket);
                     this.intervalUpdateTicket = null;
@@ -300,9 +324,9 @@
             this.getCountPage();
             this.getAllTickets(1);
             this.countType();
-
-            // this.startIntervalUpdateAllTicket();
         },
+
+        mounted() {},
 
         beforeDestroy() {
             this.stopIntervalUpdateAllTickets();
@@ -312,16 +336,11 @@
 
 <style scoped>
 
-    .container-count{
+    .container-count {
         line-height: 50px;
-        /*display: flex;*/
-        /*flex-wrap: wrap;*/
-        /*justify-content: space-between;*/
-        /*max-width: 70%;*/
-        /*margin: 0 auto;*/
     }
 
-    .container-table{
+    .container-table {
         min-height: 600px;
     }
 
@@ -347,32 +366,38 @@
         font-family: serif;
     }
 
-    .ticket-number{
+    .ticket-number {
         font-size: 14px;
         margin: 0 10px;
         color: #696869;
     }
-    .ticket-title{
+
+    .ticket-title {
         font-style: italic;
         font-weight: 600;
         color: #696869;
     }
+
     .ticket-email {
         font-size: 14px;
     }
-    .ticket-email > a{
+
+    .ticket-email > a {
         color: #0792eb;
     }
-    .ticket-date-time{
+
+    .ticket-date-time {
         font-size: 14px;
         color: #696869;
     }
-    .ticket-user{
+
+    .ticket-user {
         font-style: italic;
         font-size: 14px;
         color: #696869;
     }
-    .ticket-department{
+
+    .ticket-department {
         font-size: 14px;
         color: #696869;
     }

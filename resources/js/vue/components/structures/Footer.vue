@@ -1,7 +1,9 @@
 <template>
     <footer>
-        <p class="mt-2">Все права защищены © 2020 г.</p>
-        <p>ОП "Энергосбыт" ПАО "Сахалинэнерго"</p>
+        <div>
+            <p><a href="/storage/helpdesk.sakh.dvec.docx" class="manual">Инструкция к системе</a></p>
+            <p class="mt-2">Все права защищены © 2020 г. ОП "Энергосбыт" ПАО "Сахалинэнерго"</p>
+        </div>
     </footer>
 </template>
 
@@ -25,5 +27,8 @@
     p{
         margin-bottom: 5px;
         padding: 10px 0 0 45px;
+    }
+    .manual{
+        font-size: 15px;
     }
 </style>

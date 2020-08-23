@@ -17,7 +17,8 @@ class CreateStatusTicketsTable extends Migration
             $table->id();
             $table->string('status');
             $table->string('title');
-            $table->timestamps();
+            $table->text('description');
+//            $table->timestamps();
         });
     }
 

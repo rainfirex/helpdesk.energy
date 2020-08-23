@@ -12,31 +12,45 @@ import UserTicketCompleted from "./components/pages/user/UserTicketCompleted";
 export default new VueRouter({
     routes : [
         {
-            path: '/', component: Main
+            path: '/', component: Main, name: 'main'
         },
         {
-            path: '/create-ticket', component: CreateTicket
+            path: '/create-ticket', component: CreateTicket, name: 'create-ticket', meta: {
+                requestAuth: true
+            }
         },
         {
-            path: '/monitor-ticket', component: MonitorTicket
+            path: '/monitor-ticket', component: MonitorTicket, name: 'monitor-ticket'
         },
         {
-            path:'/auth', component: Auth
+            path:'/auth', component: Auth, name: 'auth', meta: {
+                guest: true
+            }
         },
         {
-            path: '/tickets', component: UserTickets, name: 'user-tickets'
+            path: '/tickets', component: UserTickets, name: 'user-tickets', meta: {
+                requestAuth: true
+            }
         },
         {
-            path: '/detale-ticket/:id', component: ShowDetaleTicket, name: 'detale-ticket'
+            path: '/detale-ticket/:id', component: ShowDetaleTicket, name: 'detale-ticket', meta: {
+                requestAuth: true
+            }
         },
         {
-            path: '/handler-tickets', component: HandlerTickets, name: 'handler-tickets'
+            path: '/handler-tickets', component: HandlerTickets, name: 'handler-tickets', meta: {
+                requestAuth: true
+            }
         },
         {
-            path: '/handler-tickets/detale-ticket/:id', component: ShowDetaleHandlerTickets, name: 'handler-detale-ticket'
+            path: '/handler-tickets/detale-ticket/:id', component: ShowDetaleHandlerTickets, name: 'handler-detale-ticket', meta: {
+                requestAuth: true
+            }
         },
         {
-            path: '/completed-tickets', component: UserTicketCompleted, name: 'user-completed-tickets'
+            path: '/completed-tickets', component: UserTicketCompleted, name: 'user-completed-tickets', meta: {
+                requestAuth: true
+            }
         }
     ], mode : 'history'
 });

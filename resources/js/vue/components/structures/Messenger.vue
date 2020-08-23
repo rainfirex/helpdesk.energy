@@ -1,7 +1,8 @@
 <template>
-    <div class="messenger mt-2 p-md-3  col-md-10  offset-md-1"
+    <div class="messenger mt-4 p-3 col-10 offset-1"
          v-if="messenger.text"
-         v-bind:class="{success: messenger.status === 'success', error: messenger.status === 'error'}">
+         v-bind:class="{success: messenger.status === 'success', error: messenger.status === 'error'}"
+         @dblclick="close">
         <p>{{messenger.text}}</p>
         <hr>
         <p class="help m-0 p-0" @click="close">Нажми чтобы закрыть</p>
@@ -27,8 +28,9 @@
 
 <style scoped>
  .messenger{
-     background-color: #5c7996e6;
+     background-color: #6281a0f7;
      color: white;
+     line-height: 40px;
      position: fixed;
      z-index: 99;
  }

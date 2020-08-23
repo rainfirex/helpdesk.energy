@@ -11,11 +11,6 @@
 
         name: "Header",
 
-        data() {
-            return {
-            }
-        },
-
         components: {
             Navigator
         },
