@@ -15,6 +15,7 @@
 
 <style scoped>
     footer{
+        padding: 20px;
         min-height: 80px;
         background-color: #414141;
         color: #bababa;

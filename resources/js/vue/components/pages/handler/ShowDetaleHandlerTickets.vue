@@ -6,7 +6,7 @@
         <div class="about-ticket">
 
             <div class="mb-4">
-                <button class="btn btn-secondary" @click="$router.go(-1)">Назад</button>
+                <button class="btn btn-secondary" @click="$router.go(-1)" title="Назад"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
             </div>
 
             <div class="row">
@@ -61,7 +61,6 @@
 
             <Screenshots :screenshots="screenshots"></Screenshots>
 
-
             <p><b>Изменить статус:</b></p>
             <div class="mt-2 mb-5 text-center">
                 <div class="mb-2 offset-1 col-10 offset-md-3 col-md-6 offset-lg-4 col-lg-4">
@@ -75,7 +74,7 @@
                 </div>
 
                 <div class="p-2 pl-4 pr-4 mt-3 mb-3 text-left description-status">
-                    {{statusDescription}}
+                    <p class="mb-2 mb-md-3">{{statusDescription}}</p>
                     <p class="description-status-warning"><small><i><b>Перед изменением статуса</b> (Завершено, Отклонено) убедитесь, что комментарии с автором были завершены.</i></small></p>
                 </div>
 
@@ -142,7 +141,7 @@
     import {mapMutations, mapState} from 'vuex';
     import IndicatorAutoUpdate from "../../IndicatorAutoUpdate";
     import Screenshots from "../../Screenshots";
-    import {required, minLength} from 'vuelidate/lib/validators'
+    import {required, minLength} from 'vuelidate/lib/validators';
 
     export default {
 
@@ -196,7 +195,7 @@
 
         methods: {
 
-            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
+            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode', 'playSound']),
 
             getStatusTicket() {
                 const url = `/api/handler/tickets/status/gets`;
@@ -213,10 +212,12 @@
                         this.status = response.data.statusTicket[0].id;
                         this.selectDescriptionStatus();
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -241,10 +242,12 @@
                         this.resetNew(this.ticket);
 
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -264,11 +267,18 @@
 
                     if (response.data.success) {
                         this.comments = response.data.comments;
+
+                        if (response.data.comments.some(item => item.is_new && item.is_handler === 0)) {
+                            this.playSound('/sounds/_adjutant.mp3');
+                        }
+
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -293,6 +303,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -300,6 +311,16 @@
             },
 
             handlerTicket() {
+
+                const newStatus  = this.status;
+                const currStatus = this.ticket.status_id;
+
+                if (newStatus === currStatus) {
+                    this.playSound('/sounds/_alert.mp3');
+                    this.setTextMessenger({text: 'Заявка в текущем статусе', status: 'error'});
+                    return;
+                }
+
                 if (!confirm(`Вы собираетесь изменить статус заявки. Выполнить это действие?`))
                     return;
 
@@ -307,15 +328,19 @@
 
                 this.changeLoaderBarMode(true);
 
-                axios.put(url, {ticket_id: this.ticket_id, status: this.status}).then(response => {
+                axios.put(url, {ticket_id: this.ticket_id, status: newStatus}).then(response => {
                     this.changeLoaderBarMode(false);
                     if (response.data.success) {
+                        this.playSound('/sounds/_upgrade_complete.mp3');
                         this.ticket = response.data.ticket;
                         this.getComments();
+                        this.setTextMessenger({text: 'Статус заявки изменен.', status: 'success'});
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -334,10 +359,12 @@
                     if (response.data.success) {
                         this.comments.unshift(response.data.comment);
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -349,6 +376,7 @@
                 this.$v.$touch();
 
                 if (this.$v.$invalid) {
+                    this.playSound('/sounds/_alert.mp3');
                     this.setTextMessenger({text: 'Заполните поле "комментарий"', status: 'error'});
                     return false;
                 }
@@ -363,6 +391,8 @@
 
                     if (response.data.success) {
 
+                        this.playSound('/sounds/_notify.mp3');
+
                         this.description = '';
 
                         this.setTextMessenger({text: 'Комментарий отправлен.', status: 'success'});
@@ -372,8 +402,12 @@
                         this.scrollToTopComments();
 
                         this.$v.$reset();
+                    } else {
+                        this.playSound('/sounds/_alert.mp3');
+                        this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -424,6 +458,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -441,6 +476,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -466,6 +502,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     // this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -498,30 +535,24 @@
         background: #eff2f5;
         line-height: 30px;
         min-height: 120px;
-        /*overflow: auto;*/
         word-break: break-all;
     }
 
     .description-status{
-        min-height: 110px;
         border: solid 1px #e48e8e;
         border-radius: 2px;
         line-height: 25px;
-        background: #f1f1f1;
-        position: relative;
+        text-indent: 1.5em; /* Отступ первой строки */
+        text-align: justify; /* Выравнивание по ширине */
     }
 
     .description-status-warning{
-        position: absolute;
-        bottom: 0;
+
+        margin: 5px 0;
         background: #eaeaea;
     }
 
-    /*.form {*/
-    /*    width: 90%;*/
-    /*    margin: 15px auto;*/
-    /*    background: #fafafa;*/
-    /*    padding: 25px;*/
-    /*    border-radius: 2px;*/
-    /*}*/
+    p {
+
+    }
 </style>

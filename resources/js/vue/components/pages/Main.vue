@@ -23,6 +23,7 @@
         name: "Main",
 
         computed: {
+
             ...mapState(['navTicket']),
 
             auth() {

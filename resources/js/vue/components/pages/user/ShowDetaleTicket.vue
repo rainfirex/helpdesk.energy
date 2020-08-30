@@ -4,7 +4,7 @@
         <hr>
 
         <div class="mb-4">
-            <button class="btn btn-secondary" @click="$router.go(-1)">Назад</button>
+            <button class="btn btn-secondary" @click="$router.go(-1)" title="Назад"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
         </div>
 
         <div class="about-ticket">
@@ -212,7 +212,7 @@
 
         methods: {
 
-            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
+            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode', 'playSound']),
 
             getTicket() {
 
@@ -227,10 +227,12 @@
                     if (response.data.success) {
                         this.ticket = response.data.ticket;
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -242,6 +244,7 @@
                 this.$v.description.$touch();
 
                 if (this.$v.description.$invalid) {
+                    this.playSound('/sounds/_alert.mp3');
                     this.setTextMessenger({text: 'Заполните поле "комментарий"', status: 'error'});
                     return false;
                 }
@@ -256,6 +259,8 @@
 
                     if (response.data.success) {
 
+                        this.playSound('/sounds/_notify.mp3');
+
                         this.description = '';
 
                         this.setTextMessenger({text: 'Комментарий отправлен.', status: 'success'});
@@ -267,9 +272,11 @@
                         this.$v.description.$reset();
 
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -290,10 +297,12 @@
                     if (response.data.success) {
                         this.comments.unshift(response.data.comment);
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -313,11 +322,19 @@
 
                     if (response.data.success) {
                         this.comments = response.data.comments;
+
+                        if (response.data.comments.some(item => item.is_new && item.is_handler === 1)) {
+                            this.playSound('/sounds/_adjutant.mp3');
+                        }
+
+
                     } else {
+                        this.playSound('/sounds/_alert.mp3');
                         this.setTextMessenger({text: response.data.message, status: 'error'});
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -341,9 +358,13 @@
 
                         this.ticket.status_ticket = status_ticket;
                         this.ticket.performer_user = performer_user;
+                    } else {
+                        this.setTextMessenger({text: 'Не получилось получить состояние заявки', status: 'error'});
+                        this.playSound('/sounds/_alert.mp3');
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -355,7 +376,8 @@
                 this.$v.descriptionComplete.$touch();
 
                 if (this.$v.descriptionComplete.$invalid) {
-                    this.setTextMessenger({text: 'Заполните поле "причина"', status: 'error'});
+                    this.playSound('/sounds/_alert.mp3');
+                    this.setTextMessenger({text: 'Укажите причину завершения заявки', status: 'error'});
                     return false;
                 }
 
@@ -370,6 +392,8 @@
 
                     if (response.data.success) {
 
+                        this.playSound('/sounds/_notify.mp3');
+
                         this.descriptionComplete = '';
 
                         this.setTextMessenger({text: 'Заявка завершена.', status: 'success'});
@@ -380,9 +404,11 @@
 
                    } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
+                        this.playSound('/sounds/_alert.mp3');
                    }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -425,6 +451,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -450,6 +477,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     // this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});

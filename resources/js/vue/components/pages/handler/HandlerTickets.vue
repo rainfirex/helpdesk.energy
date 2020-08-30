@@ -88,7 +88,7 @@
             </table>
         </div>
 
-        <div class="col-12 offset-md-1 col-md-10 mb-5 p-0">
+        <div class="col-12 offset-md-1 col-md-10 mb-5 p-0" >
             <h3 class="text-center">Заявки</h3>
             <Piechart
                 :size="{width:400, height:400}"
@@ -145,8 +145,8 @@
                     all: 0,
                     new: 0,
                     completed: 0,
-                    performed: 8,
-                    rejected: 3,
+                    performed: 0,
+                    rejected: 0,
                     untouched: 0
                 },
 

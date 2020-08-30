@@ -20,7 +20,12 @@ export default {
         state.messenger.text = val.text;
         state.messenger.status = val.status;
 
-        setTimeout(()=> {
+
+        if (state.messenger.timerId) {
+            clearTimeout(state.messenger.timerId);
+        }
+
+        state.messenger.timerId = setTimeout(() => {
             if (state.messenger.text.length > 1) {
                 state.messenger.text = '';
             }
@@ -37,6 +42,23 @@ export default {
         }
 
         state.loaderBar = val;
-    }
+    },
 
+    playSound(state, sound) {
+        if (!state.isSoundMute) {
+            new Audio(sound).play();
+        }
+    },
+
+    setSoundMode(state, mode) {
+        state.isSoundMute = mode;
+        localStorage.setItem('is_sound_mute', mode);
+    },
+
+   loadSoundMode(state){
+       const value = localStorage.getItem('is_sound_mute');
+       if (value != null) {
+           state.isSoundMute = (value == 'true') ? true : false;
+       }
+    }
 }

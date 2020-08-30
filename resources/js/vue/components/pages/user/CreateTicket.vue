@@ -6,7 +6,7 @@
         <div class="offset-md-1 col-md-10">
 
             <div class="mb-4">
-                <button class="btn btn-secondary" @click="$router.go(-1)">Назад</button>
+                <button class="btn btn-secondary" @click="$router.go(-1)" title="Назад"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
             </div>
 
             <!--                <div class="form-group">-->
@@ -73,8 +73,7 @@
                     <option :value="cat.title" v-for="cat in categories" :key="cat.id">{{cat.title}}</option>
 
                 </select>
-                <small id="categoryHelp" class="form-text text-muted" :class="{'is-error': $v.category.$error}">Категория
-                    заявки.
+                <small id="categoryHelp" class="form-text text-muted" :class="{'is-error': $v.category.$error}">Категория заявки.
                     <span v-if="!$v.category.required" class="error-text"
                           :class="{'error-show': !$v.category.required}">Поле пустое</span>
                 </small>
@@ -86,8 +85,7 @@
                           :class="{'error-input': $v.description.$error}"
                           @change="$v.description.$touch()"
                 ></textarea>
-                <small id="descriptionHelp" class="form-text text-muted" :class="{'is-error': $v.description.$error}">Основной
-                    текст заявки.
+                <small id="descriptionHelp" class="form-text text-muted" :class="{'is-error': $v.description.$error}">Основной текст заявки.
                     <span v-if="!$v.description.required" class="error-text"
                           :class="{'error-show': !$v.description.required}">Поле пустое</span>
                     <span v-if="!$v.description.minLength" class="error-text"
@@ -97,23 +95,36 @@
 
             <div class="form-group">
                 <label for="description">Загрузка файлов</label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" multiple @change="selectFiles"
-                           accept=".jpg, .jpeg, .png">
+                <div style="font-size: 0.8em; line-height: 30px">
+                </div>
+                <div class="custom-file d-none">
+                    <input type="file" class="custom-file-input"
+                           multiple @change="selectFiles"
+                           ref="fileInput"
+                           accept="image/jpeg, image/jpg, image/png" >
                     <label class="custom-file-label">Файл...</label>
                 </div>
-                <div class="drop-container mt-2" ref="dropContainer"
+                <div class="drop-container mt-2 form-control" ref="dropContainer" tabindex="7"
                      @dragenter="dropEnter"
                      @drop="dropFiles"
                      @dragleave="dropLeave"
-                     @dragover="dropOver">
-                    Перетащите в эту область графические файлы формата: .png, .jpeg, .jpg
+                     @dragover="dropOver"
+                     @click="$refs.fileInput.click()">
+                    <p class="mb-0">Нажмите или перетащите в эту область графические файлы формата: .png, .jpeg, .jpg<br>Вставить из буфера <b>(ctrl+v)</b></p>
                 </div>
             </div>
 
-            <div class="form-group">
-                <ul>
-                    <li v-for="(file, index) in files">{{ index +1 }} - {{ file.name }}</li>
+            <div class="form-group" v-if="files.length > 0">
+                <p>Загружаемые файлы</p>
+                <ul class="list-unstyled d-flex flex-wrap justify-content-between">
+                    <li class="item-prev p-2 mb-2"
+                        v-for="(file, index) in files">
+                        <div class="img-container">
+                            <p class="title-img">{{ index +1 }} - {{ file.name }}&nbsp;</p>
+                            <img  :alt="file.name" :ref="'image_'+parseInt( index )"/>
+                            <i class="fa fa-trash-o ico-img-remove" @click="removeFile(index)" title="Убрать файл"></i>
+                        </div>
+                    </li>
                 </ul>
             </div>
 
@@ -125,8 +136,9 @@
 </template>
 
 <script>
-    import {mapMutations} from 'vuex';
+    import { mapMutations } from 'vuex';
     import { required, minLength } from 'vuelidate/lib/validators'
+
     export default {
         name: "CreateTicket",
 
@@ -182,13 +194,14 @@
 
         methods: {
 
-            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
+            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode', 'playSound']),
 
             createTicket() {
 
                 this.$v.$touch();
 
                 if (this.$v.$invalid) {
+                    this.playSound('/sounds/_alert.mp3');
                     this.setTextMessenger({text: 'Заполните все поля!', status: 'error'});
                     return false;
                 }
@@ -215,12 +228,16 @@
 
                     if (response.data.success){
                         this.$router.push('/');
+
                         this.setTextMessenger({text: `Ваша заявка создана под номером: ${response.data.ticket_number}`, status: 'success'});
+                        this.playSound('/sounds/_notify.mp3');
                     } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
+                        this.playSound('/sounds/_alert.mp3');
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -233,8 +250,21 @@
 
                 if (e.target.files.length <= 0) return;
 
-                this.files = e.target.files;
+                let isErrors = false;
+                let ignorFiles = [];
 
+                for (const file of e.target.files) {
+
+                    let extFile = file.name.substr(file.name.lastIndexOf(".")+1, file.name.length).toLowerCase();
+
+                    if (extFile === 'jpg' || extFile === 'png' || extFile === 'jpeg') {
+                        this.files.push(file);
+                    } else {
+                        isErrors = true;
+                        ignorFiles.push(file.name)
+                    }
+                }
+                this.setTextMessenger({text: `Некоторые файлы были проигнорированы: ${ignorFiles.map(item => `"${item}"`).join("\n\r")}`, status: 'error'});
             },
 
             dropEnter(e) {
@@ -247,7 +277,10 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                this.files = e.dataTransfer.files;
+                // this.files = e.dataTransfer.files;
+                for (const file of e.dataTransfer.files) {
+                    this.files.push(file);
+                }
 
                 this.$refs.dropContainer.classList.remove('drop-container-enter');
             },
@@ -280,7 +313,49 @@
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
                 });
+            },
+
+            pstImage(event) {
+                let items = (event.clipboardData || event.originalEvent.clipboardData).items;
+                // will give you the mime types
+                for (const index in items) {
+                    let item = items[index];
+
+                    if (item.kind === 'file') {
+                        const file = item.getAsFile();
+                        this.files.push(file);
+                    }
+                }
+            },
+
+            removeFile(index){
+                this.files.splice(index, 1);
+            },
+
+            renderImage(){
+                for (let index in this.files) {
+
+                    let reader = new FileReader();
+
+                    reader.addEventListener('load', () => {
+                        this.$refs['image_'+parseInt(index)][0].src = reader.result;
+                    }, false);
+
+                    reader.readAsDataURL(this.files[index]);
+                }
+            },
+
+            listenerKeyDown(e) {
+                if (e.code === 'Enter' && e.key === 'Enter') {
+                    this.createTicket();
+                }
             }
+        },
+
+        watch: {
+          files() {
+              this.renderImage();
+          }
         },
 
         created() {
@@ -288,25 +363,85 @@
             this.phone = this.user.phone;
 
             this.getCategories();
+        },
+
+        mounted() {
+            document.body.addEventListener('paste', this.pstImage);
+            document.body.addEventListener('keydown', this.listenerKeyDown);
+        },
+
+        beforeDestroy() {
+            document.body.removeEventListener('paste', this.pstImage);
+            document.body.removeEventListener('keydown', this.listenerKeyDown);
         }
     }
 </script>
 
 <style lang="scss" scoped>
-    .custom-file-label::after{content:"Выбрать" !important;}
+    .custom-file-label::after{content:"Обзор" !important;}
 
     .drop-container {
         background-color: #f0f1f2;
-        height: 80px;
+        height: 100px;
         display: flex;
         justify-content: center;
         align-items: center;
-        color: #7984ca;
+        color: #809a9e;
         font-size: 11px;
+        cursor: pointer;
+        transition: 1s;
+        line-height: 35px;
+
+        &:hover{
+            background-color: #fdfeff;
+        }
     }
 
     .drop-container-enter{
         border: solid 1px #7698c2;
         box-shadow: 0 0 0 0.2rem rgb(0 135 255 / 25%);
+    }
+
+    .item-prev{
+        background-color: white;
+        font-size: small;
+        font-family: monospace;
+    }
+
+    .img-container{
+        position: relative;
+        width: 250px;
+
+        .title-img{
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #80777894;
+            color: white;
+            padding: 5px;
+            width: 100%;
+            overflow: hidden;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .ico-img-remove {
+            cursor: pointer;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #80777894;
+            padding: 10px;
+            color: #c1c1c1;
+            font-size: 1.3em;
+        }
+
+        .ico-img-remove:hover {
+            color: #e4e2e2;
+        }
+
+        img {
+            width: 100%;
+        }
     }
 </style>

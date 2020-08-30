@@ -1,6 +1,6 @@
 <template>
-    <div class="pie-chart text-center p-md-3">
-        <canvas ref="canvas" class="mb-3 mt-3 p-0 col-12 col-mb-5 col-lg-7"></canvas>
+    <div class="pie-chart text-center p-md-3" >
+        <canvas ref="canvas" class="mb-3 mt-3 p-0 col-11 col-md-4" ></canvas>
         <div ref="legend" class="text-left offset-1 col-10"></div>
     </div>
 </template>
@@ -45,11 +45,11 @@
           this.canvas = this.$refs.canvas;
           this.legend = this.$refs.legend;
 
-          // this.canvas.width  = this.size.width;
-          // this.canvas.height = this.size.height;
+          this.canvas.width  = this.size.width;
+          this.canvas.height = this.size.height;
 
-             this.canvas.minWidth  = 200;
-             this.canvas.minHeight = 200;
+             // this.canvas.minWidth  = 200;
+             // this.canvas.minHeight = 200;
 
           this.ctx = this.canvas.getContext('2d');
           this.draw();
@@ -132,6 +132,7 @@
                     }
 
                     let labelText = Math.round(100 * val / total_value);
+
                     if (labelText > 0) {
                         this.ctx.fillStyle = "white";
                         this.ctx.font = "bold 15px Arial";

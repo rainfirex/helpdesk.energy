@@ -93,7 +93,7 @@
 
         methods: {
 
-            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
+            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode', 'playSound']),
 
             getTickets(numPage) {
 
@@ -112,9 +112,11 @@
                         this.tickets = response.data.tickets;
                     } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
+                        this.playSound('/sounds/_alert.mp3');
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -154,6 +156,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -170,6 +173,7 @@
 
             findTickets() {
                 if (this.findText.length < 5) {
+                    this.playSound('/sounds/_alert.mp3');
                     this.setTextMessenger({text: 'Для поиска необходимо ввести 5 символов.', status: 'error'});
                     return false;
                 }
@@ -190,9 +194,11 @@
                         this.countPage = 0;
                     } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
+                        this.playSound('/sounds/_alert.mp3');
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -214,21 +220,8 @@
     }
 </script>
 
-<style scoped>
-
-    .container-list{
-        min-height: 500px;
-    }
-
-    ul{
-        list-style: none;
-    }
-
-    li {
-        display: inline-block;
-    }
-
+<style lang="scss" scoped>
     .search-label{
-        font-size: 12px;
+        font-size: small;
     }
 </style>

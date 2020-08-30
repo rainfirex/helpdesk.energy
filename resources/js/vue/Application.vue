@@ -1,7 +1,7 @@
 <template>
         <div class="wrapper">
             <Header></Header>
-            <Messenger></Messenger>
+            <Messenger @hoverMouse="alert('123')"></Messenger>
             <Body></Body>
             <Footer></Footer>
             <LoaderBar></LoaderBar>
@@ -16,6 +16,7 @@
     import LoaderBar from "./components/structures/LoaderBar";
 
     import Auth from "./Auth";
+    import Sound from "./Sound";
 
     export default {
         name:"Application",
@@ -34,17 +35,7 @@
 
         created() {
             Auth.init();
+            Sound.init();
         }
     };
 </script>
-
-<style lang="scss">
-
-    .wrapper{
-        background-color: #d1d5d9;
-        width: 100%;
-        min-height: 100%;
-        position: relative;
-    }
-
-</style>

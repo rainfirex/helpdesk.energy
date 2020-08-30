@@ -6,8 +6,19 @@
             <div class="col-12 offset-md-2 col-md-8">
                 <div class="form-group mb-4">
                     <label for="numberTicket">Номер заявки</label>
-                    <input type="text" class="form-control" id="numberTicket" aria-describedby="numberTicketHelp" v-model="numberTicket">
-                    <small id="numberTicketHelp" class="form-text text-muted">Введите номер заявки чтобы узнать статус.</small>
+                    <input type="text" class="form-control" id="numberTicket" aria-describedby="numberTicketHelp" placeholder="ticket.5f444f1ace2ef6.00000000"
+                           v-model="numberTicket"
+                           :class="{'error-input': $v.numberTicket.$error}"
+                           @change="$v.numberTicket.$touch()"
+                    >
+                    <small id="numberTicketHelp" class="form-text text-muted" :class="{'is-error': $v.numberTicket.$error}">Введите номер заявки чтобы узнать статус.
+                        <span v-if="!$v.numberTicket.required" class="error-text"
+                              :class="{'error-show': !$v.numberTicket.required}">Поле пустое</span>
+                        <span v-if="!$v.numberTicket.minLength" class="error-text"
+                              :class="{'error-show': !$v.numberTicket.minLength}">Меньше 30ти символов</span>
+                        <span v-if="!$v.numberTicket.alpha" class="error-text"
+                              :class="{'error-show': !$v.numberTicket.alpha}">Неверный формат заявки</span>
+                    </small>
                 </div>
 
                 <div class="text-center">
@@ -37,6 +48,9 @@
 
 <script>
     import {mapMutations} from 'vuex';
+    import { required, minLength, helpers  } from 'vuelidate/lib/validators'
+
+    const alpha = helpers.regex('alpha', /^(ticket.)[a-z0-9.]+/i);
 
     export default {
 
@@ -53,6 +67,14 @@
             }
         },
 
+        validations: {
+            numberTicket : {
+                required,
+                minLength: minLength(30),
+                alpha
+            }
+        },
+
         computed: {
             user(){
                 return this.$store.state.Auth;
@@ -61,9 +83,17 @@
 
         methods: {
 
-            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode']),
+            ...mapMutations(['setTextMessenger', 'changeLoaderBarMode', 'playSound']),
 
             getTicket(){
+
+                this.$v.$touch();
+
+                if (this.$v.$invalid) {
+                    this.playSound('/sounds/_alert.mp3');
+                    this.setTextMessenger({text: 'Ошибка ввода номера заявки', status: 'error'});
+                    return false;
+                }
 
                 this.ticket = null;
 
@@ -71,7 +101,7 @@
 
                 this.changeLoaderBarMode(true);
 
-                // axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.user.api_token;
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.user.api_token;
                 axios.get(url).then(response => {
 
                     this.changeLoaderBarMode(false);
@@ -81,6 +111,7 @@
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.changeLoaderBarMode(false);
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
@@ -93,14 +124,30 @@
 
             formatDateTime(dateTime) {
                 return new Date(dateTime).toLocaleDateString() + ' в ' + new Date(dateTime).toLocaleTimeString();
+            },
+
+            listenerKeyDown(e) {
+                if (e.code === 'Enter' && e.key === 'Enter') {
+                    this.getTicket();
+                }
+
+                if (e.code === 'Escape' && e.key === 'Escape'){
+                    this.numberTicket = '';
+                }
             }
+        },
+
+        mounted() {
+            document.body.addEventListener('keydown', this.listenerKeyDown);
+        },
+
+        beforeDestroy() {
+            document.body.removeEventListener('keydown', this.listenerKeyDown);
         }
     }
 </script>
 
 <style scoped>
-    .monitor-ticket{
-    }
     .comment-your{
         border-radius: 3px;
         background: #d8ecdd;

@@ -67,13 +67,14 @@
 
         methods: {
 
-            ...mapMutations(['setTextMessenger']),
+            ...mapMutations(['setTextMessenger', 'playSound']),
 
             auth() {
 
                 this.$v.$touch();
 
                 if (this.$v.$invalid) {
+                    this.playSound('/sounds/_alert.mp3');
                     this.setTextMessenger({text: 'Заполните все поля!', status: 'error'});
                     return false;
                 }
@@ -81,44 +82,28 @@
                 const url = `/api/auth/login`;
                 axios.post(url, {login: this.login, password: this.password}).then(response => {
                     if (response.data.success) {
+
                         Auth.login(response.data);
                         Auth.init();
-                        this.$router.push('/');
+
                         this.setTextMessenger({text: 'Вы вошли в систему', status: 'success'});
+                        this.playSound('/sounds/_mission.mp3');
+
+                        this.$router.push('/');
+
                     } else {
                         this.setTextMessenger({text: response.data.message, status: 'error'});
+                        this.playSound('/sounds/_alert.mp3');
                     }
 
                 }).catch(error => {
+                    this.playSound('/sounds/_alert.mp3');
                     this.errors = error.response.data.message;
                     this.setTextMessenger({text: this.errors, status: 'error'});
                 });
             },
 
-            logout() {
-                const url = `/api/auth/logout`;
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.auth.api_token;
-                axios.post(url).then(response => {
-                    if (response.data.success) {
-                        Auth.logout();
-                        Auth.init();
-                        this.$store.commit('setTextMessenger', {text: 'Вы вышли из системы', status: 'success'});
-                        // if(this.$router.history.current.path !== '/') {
-                            this.$router.push('/');
-                        // }
-                    } else {
-                        this.$store.commit('setTextMessenger', {text: response.data.message, status: 'error'});
-                    }
-                }).catch(error => {
-                    this.errors = error.response.data.errors;
-                    this.$store.commit('setTextMessenger', {text: this.errors, status: 'error'});
-                });
-            }
-        },
-
-        mounted() {
-            document.body.addEventListener('keydown', e => {
-
+            listenerKeyDown(e) {
                 if(e.code === 'Enter' && e.key === 'Enter') {
                     this.auth();
                 }
@@ -131,9 +116,37 @@
                         }
                     }
                 }
+            }
 
-            });
+            // logout() {
+            //     const url = `/api/auth/logout`;
+            //     axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.auth.api_token;
+            //     axios.post(url).then(response => {
+            //         if (response.data.success) {
+            //             PlayAudio('/sounds/_ping.mp3');
+            //             Auth.logout();
+            //             Auth.init();
+            //             this.$store.commit('setTextMessenger', {text: 'Вы вышли из системы', status: 'success'});
+            //             // if(this.$router.history.current.path !== '/') {
+            //                 this.$router.push('/');
+            //             // }
+            //         } else {
+            //             this.$store.commit('setTextMessenger', {text: response.data.message, status: 'error'});
+            //         }
+            //     }).catch(error => {
+            //         this.errors = error.response.data.errors;
+            //         this.$store.commit('setTextMessenger', {text: this.errors, status: 'error'});
+            //     });
+            // }
         },
+
+        mounted() {
+            document.body.addEventListener('keydown', this.listenerKeyDown);
+        },
+
+        beforeDestroy() {
+            document.body.removeEventListener('keydown', this.listenerKeyDown);
+        }
 
         // beforeRouteEnter(to, from, next) {
         //     console.log(this.$store);

@@ -1,7 +1,7 @@
 <template>
     <ul class="p-3 ">
-        <li class="item-ticket p-1 mb-2"  v-for="ticket in tickets">
-            <router-link class="d-block" :to="{name: 'detale-ticket', params: {id : ticket.id}}">
+        <li class="item-ticket mb-2"  v-for="ticket in tickets">
+            <router-link class="d-block p-4" :to="{name: 'detale-ticket', params: {id : ticket.id}}">
                 <div class="row mb-1">
                     <div class="offset-md-1 col-md-7">
                         <p class="m-0">№ {{ticket.number}}</p>
@@ -12,9 +12,9 @@
                 </div>
                 <div class="row">
                     <div class="offset-md-1 col-md-7">
-                        <p class="item-ticket-title mb-1">Название: {{ticket.title}}</p>
+                        <p class="ticket-title mb-1">Название: {{ticket.title}}</p>
 
-                        <p v-if="ticket.is_new_user_comment && ticket.is_new_user_comment.length > 0">Новых комментариев: <span class="badge badge-primary">{{ticket.is_new_user_comment.length}}</span></p>
+                        <p v-if="ticket.is_new_user_comment && ticket.is_new_user_comment.length > 0"><i>Новых комментариев:</i> <span class="badge badge-primary">{{ticket.is_new_user_comment.length}}</span></p>
                     </div>
                     <div class="offset-md-1 col-md-3">
                         <p>Статус:
@@ -44,28 +44,38 @@
     }
 </script>
 
-<style scoped>
-    ul{
-        list-style: none;
-        overflow: hidden;
-    }
+<style lang="scss" scoped>
+
+    $colorLink: #656767;
+    $colorTitle: #6d8abf;
+    $ticketBackgroundColor: #e6e6e6;
+
     .item-ticket{
-        border-bottom: solid 1px #e2e2e2;
-        background: #f7f7f7;
-    }
-    .item-ticket:last-child {
-        border-bottom: none;
-    }
-    .item-ticket > a{
-        text-decoration: none;
-        color: #656767;
-    }
-    .item-ticket:hover{
-        background-color: white;
-        transition: .4s;
-    }
-    .item-ticket-title{
-        font-size: 1.2em;
-        color: #545454;
+        border: solid 1px #e2e2e2;
+        background: $ticketBackgroundColor;
+        transition: 0.8s;
+
+        p {
+            margin-bottom: 0;
+        }
+
+        &:last-child {
+            /*border-bottom: none;*/
+        }
+
+        a{
+            text-decoration: none;
+            color: $colorLink;
+        }
+
+        &:hover{
+            background-color: white;
+            border: solid 1px $colorTitle;
+        }
+
+        .ticket-title{
+            font-weight: 600;
+            color: $colorTitle;
+        }
     }
 </style>

@@ -32,7 +32,8 @@
 
 <style scoped>
     header{
-        background-color: #363636;
+        background: linear-gradient(to top, #7b7676, #1b1919, #363636, #776f6f);
+        /*background-color: #363636;*/
         min-height: 26px;
 
         position: sticky;

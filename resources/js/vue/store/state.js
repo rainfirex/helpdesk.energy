@@ -1,19 +1,20 @@
 export default {
 
-    test: 'Hello test!',
-
     loaderBar: false,
+
+    isSoundMute: true,
 
     messenger: {
         text: '',
         status: '',
+        timerId: null,
         timeout: 8500
     },
 
     nav: [
-        {path: '/', title: 'Главная', auth: 'both'},
-        {path: '/auth', title: 'Авторизация', auth: false},
-        {path: '/tickets', title: 'Заявки', auth:true}
+        {path: '/', title: 'Главная', auth: 'both', ico: 'fa-home'},
+        {path: '/auth', title: 'Авторизация', auth: false, ico: 'fa-user'},
+        {path: '/tickets', title: 'Заявки', auth:true, ico: 'fa-newspaper-o'}
     ],
 
     navAuth: [
@@ -27,7 +28,7 @@ export default {
     ],
 
     navHandler: [
-        {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true}
+        {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true, ico:'fa-sign-language'}
     ],
 
     Auth: {
