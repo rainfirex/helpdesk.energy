@@ -91,6 +91,8 @@ class ControllerAuth extends Controller
                 $user->department = $department;
                 $user->title = $title;
                 $user->api_token = Str::random(60);
+                $user->last_ip = $_SERVER['REMOTE_ADDR'];
+                $user->user_agent = $_SERVER['HTTP_USER_AGENT'];
                 $user->save();
 
                 return response()->json([
@@ -103,6 +105,8 @@ class ControllerAuth extends Controller
                     'mobile'     => $user->mobile,
                     'department' => $user->department,
                     'title'      => $user->title,
+                    'last_ip'    => $user->last_ip,
+                    'user_agent' => $user->user_agent,
                     'is_handler' => ($user->department === CheckHandler::HANDLER_DEPARTMENT) ? true : false
                 ], 200);
             } else {
@@ -117,12 +121,30 @@ class ControllerAuth extends Controller
     }
 
     public function logout(Request $request) {
+        $result = false;
         $user = $request->user();
-        $user->api_token = null;
-        $user->save();
+        $headerTokenApi = $request->header('Authorization');
+
+        if (!empty($user)) {
+            $result = true;
+        } elseif($headerTokenApi) {
+
+            $user = User::where('api_token','=', str_replace('Bearer ', '', $headerTokenApi))->first();
+
+            if (!empty($user))
+                $result = true;
+
+        } else {
+            $result = false;
+        }
+
+        if ($result && !empty($user)) {
+            $user->api_token = null;
+            $user->save();
+        }
 
         return response()->json([
-           'success' => true
+            'success' => $result
         ]);
     }
 

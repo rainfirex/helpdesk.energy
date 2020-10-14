@@ -1,0 +1,35 @@
+.comments {
+    max-height: 450px;
+    overflow: auto;
+
+    .comment{
+        line-height: 35px;
+        padding: 10px;
+        margin: 10px;
+
+        .comment-about{
+            font-size: 0.8em;
+        }
+    }
+
+    .username{
+        font-size: 0.9em;
+        color: #7b7bd7;
+    }
+    .date-created{
+        color: #757575;
+        font-size: 0.9em;
+        border-bottom: solid 1px #838383;
+        display: inline-block;
+    }
+
+    .comment-user {
+        border: solid 1px #eeeded;
+        background: #e3f3fa;
+    }
+
+    .comment-handler {
+        border: solid 1px #e9f3f6;
+        background: #fefefe;
+    }
+}

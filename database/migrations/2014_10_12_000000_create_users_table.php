@@ -22,10 +22,10 @@ class CreateUsersTable extends Migration
             $table->string('othertelephone');
             $table->string('department');
             $table->string('title');
-//            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('api_token')->nullable();
-//            $table->rememberToken();
+            $table->string('last_ip')->nullable();
+            $table->string('user_agent')->nullable();
             $table->timestamps();
         });
     }

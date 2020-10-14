@@ -49,3 +49,10 @@ npm run production
 npm run watch
 npm run production
 npm run watch
+cd /var/www/helpdesk.sakh.dvec.ru/www/
+npm run watch
+ls -l
+npm watch run
+npm run watch
+ls -l
+npm run watch
