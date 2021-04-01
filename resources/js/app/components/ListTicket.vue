@@ -1,7 +1,7 @@
 <template>
     <ul class="p-3 ">
         <li class="item-ticket mb-2"  v-for="ticket in tickets">
-            <router-link class="d-block p-4" :to="{name: 'detale-ticket', params: {id : ticket.id}}">
+            <router-link class="d-block p-3" :to="{name: 'detale-ticket', params: {id : ticket.id}}">
                 <div class="row mb-1">
                     <div class="offset-md-1 col-md-7">
                         <p class="m-0">№ {{ticket.number}}</p>
@@ -47,11 +47,11 @@
 <style lang="scss" scoped>
 
     $colorLink: #656767;
-    $colorTitle: #6d8abf;
-    $ticketBackgroundColor: #e6e6e6;
+    $colorTitle: #737373;
+    $ticketBackgroundColor: #f3f3f3;
 
     .item-ticket{
-        border: solid 1px #e2e2e2;
+        border: solid 1px #efeded;
         background: $ticketBackgroundColor;
         transition: 0.8s;
 

@@ -9,6 +9,8 @@ import HandlerTickets from "../components/views/handler/HandlerTickets";
 import ShowDetaleHandlerTickets from "../components/views/handler/ShowDetaleHandlerTickets";
 import UserTicketCompleted from "../components/views/user/UserTicketCompleted";
 import NotFound from '../components/views/NotFound';
+import RequestInfoResource from "../components/views/RequestInfoResource";
+import ShowInfoResource from "../components/views/handler/ShowInfoResource";
 
 export default new VueRouter({
     routes : [
@@ -22,6 +24,9 @@ export default new VueRouter({
         },
         {
             path: '/monitor-ticket', component: MonitorTicket, name: 'monitor-ticket'
+        },
+        {
+            path: '/request-info-resource', component: RequestInfoResource, name: 'request.info.resource'
         },
         {
             path:'/auth', component: Auth, name: 'auth', meta: {
@@ -56,6 +61,11 @@ export default new VueRouter({
         {
             path: '*', component: NotFound, name: 'not-found', meta: {
                 requestAuth: false
+            }
+        },
+        {
+            path: '/resource-access', component: ShowInfoResource, name: 'info-resourse', meta:{
+                requestAuth: true
             }
         }
     ], mode : 'history'

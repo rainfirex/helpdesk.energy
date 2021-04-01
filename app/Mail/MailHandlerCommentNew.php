@@ -29,7 +29,6 @@ class MailHandlerCommentNew extends Mailable
     }
 
     public function build() {
-//        dd($this->user_comment);
         return $this->view('mail.handler-comment-new')->subject("Новый комментарий к заявке")->with([
             'username'      => $this->username,
             'title'         => $this->title,

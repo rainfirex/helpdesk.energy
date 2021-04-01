@@ -186,9 +186,7 @@
             document.body.addEventListener('click', () => {
                 this.isShowUser = false;
             });
-        },
-
-        beforeDestroy() { }
+        }
     }
 </script>
 

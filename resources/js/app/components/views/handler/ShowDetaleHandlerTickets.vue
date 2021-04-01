@@ -6,16 +6,42 @@
         <div class="about-ticket">
 
             <div class="mb-4">
-                <button class="btn btn-secondary" @click="$router.go(-1)" title="Назад"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+                <button class="btn btn-secondary" @click="$router.go(-1)" title="Назад"><i class="fa fa-arrow-left"
+                                                                                           aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-outline-secondary"
+                        :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
+                        @click="isShowAssign = !isShowAssign">Назначить на исполнение</button>
+                <button class="btn btn-outline-secondary"
+                        :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
+                        @click="isShowChangeStatus = !isShowChangeStatus">Обработать заявку
+                </button>
+            </div>
+
+            <AssignHandler v-if="isShowAssign" :ticket="ticket" @close="isShowAssign = false"/>
+
+            <ChangeStatus v-if="isShowChangeStatus" :ticket="ticket" @updateTicket="updateTicket"
+                          @close="isShowChangeStatus = false"/>
+
+            <div class="row">
+                <div class="col-12">
+                    <p><b>Назначил исполнителя:</b>
+                        <span v-if="ticket.master_user">{{ ticket.master_user.name }}</span>
+                    </p>
+                    <p><b>Исполнитель заявки:</b>
+                        <span v-if="ticket.performer_user">{{ ticket.performer_user.name }}</span>
+                    </p>
+                </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
                     <p>Создана: {{formatDateTime(ticket.created_at)}}</p>
                 </div>
+
                 <div class="offset-md-3 col-md-3 text-md-right" v-if="ticket.status_ticket">
                     <p>Статус: <span
-                        :class="{'status-completed' : ticket.status_ticket.status === 'completed',
+                            :class="{'status-completed' : ticket.status_ticket.status === 'completed',
                              'status-untouched' : ticket.status_ticket.status === 'untouched',
                              'status-performed' : ticket.status_ticket.status === 'performed',
                              'status-rejected' : ticket.status_ticket.status === 'rejected'}">{{ticket.status_ticket.title}}</span>
@@ -52,72 +78,56 @@
                 </div>
             </div>
 
-            <div>
-                <p><b>Содержание:</b></p>
-                <div class="description p-3">
-                    {{ticket.description}}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <p><b>Содержание:</b></p>
+                    <div class="description p-3">
+                        {{ticket.description}}
+                    </div>
                 </div>
             </div>
 
-            <Screenshots :screenshots="screenshots"></Screenshots>
+            <Docs v-if="docs.length > 0" :docs="docs"/>
 
-            <p><b>Изменить статус:</b></p>
-            <div class="mt-2 mb-5 text-center">
-                <div class="mb-2 offset-1 col-10 offset-md-3 col-md-6 offset-lg-4 col-lg-4">
-                    <select
-                        class="form-control"
-                        v-model="status"
-                        @change="selectDescriptionStatus()"
-                        :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')">
-                            <option v-for="status in statusTicket" :value="status.id">{{status.title}}</option>
-                    </select>
-                </div>
-
-                <div class="p-2 pl-4 pr-4 mt-3 mb-3 text-left description-status">
-                    <p class="mb-2 mb-md-3">{{statusDescription}}</p>
-                    <p class="description-status-warning"><small><i><b>Перед изменением статуса</b> (Завершено, Отклонено) убедитесь, что комментарии с автором были завершены.</i></small></p>
-                </div>
-
-                <button class="btn btn-outline-dark"
-                        :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
-                        @click="handlerTicket()">Обработать заявку
-                </button>
-            </div>
+            <Screenshots v-if="screenshots.length > 0" :screenshots="screenshots" />
 
             <hr>
 
-            <p><b>Комментарии:</b></p>
-            <div class="comments mb-2 pl-md-5 pr-md-5">
-                <div v-for="comment in comments" :key="comment.ID">
+            <!--Комментарии-->
+            <div v-if="comments.length > 0">
+                <p><b>Комментарии:</b></p>
+                <div class="comments mb-4 pl-md-5 pr-md-5">
+                    <div v-for="comment in comments" :key="comment.ID">
 
-                    <div class="comment comment-handler" v-if="comment.is_handler">
-                        <p class="m-1 date-created">{{formatDateTime(comment.created_at)}}</p>
-                        <p class="mb-0 text-muted h6 pt-2 pb-2 comment-about">Обработчик: <span
-                            class="username">({{comment.user.name}})</span></p>
-                        <p>{{comment.description}}</p>
+                        <div class="comment comment-handler" v-if="comment.is_handler">
+                            <p class="m-1 date-created">{{formatDateTime(comment.created_at)}}</p>
+                            <p class="mb-0 text-muted h6 pt-2 pb-2 comment-about">Обработчик: <span
+                                    class="username">({{comment.user.name}})</span></p>
+                            <p>{{comment.description}}</p>
+                        </div>
+
+                        <div class="comment comment-user" v-else @mouseenter.self.stop="resetCommentNew(comment)">
+                            <p class="m-1 date-created">{{formatDateTime(comment.created_at)}} <span
+                                    class="badge badge-primary ml-2" v-if="comment.is_new">New</span></p>
+                            <p class="mb-0 text-muted h6 pt-2 pb-2 comment-about">Автор: <span
+                                    class="username">({{comment.user.name}})</span></p>
+                            <p>{{comment.description}}</p>
+                        </div>
+
                     </div>
-
-                    <div class="comment comment-user" v-else @mouseenter.self.stop="resetCommentNew(comment)">
-                        <p class="m-1 date-created">{{formatDateTime(comment.created_at)}} <span
-                            class="badge badge-primary ml-2" v-if="comment.is_new">New</span></p>
-                        <p class="mb-0 text-muted h6 pt-2 pb-2 comment-about">Автор: <span
-                            class="username">({{comment.user.name}})</span></p>
-                        <p>{{comment.description}}</p>
-                    </div>
-
                 </div>
             </div>
 
             <p><b>Написать комментарий:</b></p>
             <div class="create-comment">
                 <textarea class="form-control" rows="5"
+                          placeholder="Текст комментария."
                           v-model="description"
                           :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed' || ticket.status_ticket.status === 'rejected')"
                           :class="{'error-input': $v.description.$error}"
                           @change="$v.description.$touch()"
                 ></textarea>
-                <small id="descriptionHelp" class="form-text text-muted" :class="{'is-error': $v.description.$error}">Текст
-                    комментария.
+                <small id="descriptionHelp" class="form-text text-muted" :class="{'is-error': $v.description.$error}">
                     <span v-if="!$v.description.required" class="error-text"
                           :class="{'error-show': !$v.description.required}">Поле пустое</span>
                     <span v-if="!$v.description.minLength" class="error-text"
@@ -133,27 +143,32 @@
             </div>
 
             <indicatorAutoUpdate :is_enable="intervalUpdateComments"/>
+
         </div>
     </div>
 </template>
 
 <script>
     import {required, minLength} from 'vuelidate/lib/validators';
-    import { mapActions, mapGetters } from 'vuex';
+    import {mapActions, mapGetters} from 'vuex';
     import Sound from "../../../assets/js/Sound";
     import IndicatorAutoUpdate from "../../IndicatorAutoUpdate";
     import Screenshots from "../../Screenshots";
+    import AssignHandler from "../../AssignHandler";
+    import ChangeStatus from "../../ChangeStatus";
+    import Docs from "../../Docs";
     export default {
         name: "ShowDetaleHandlerTickets",
         components: {
             IndicatorAutoUpdate,
-            Screenshots
+            Screenshots,
+            AssignHandler,
+            ChangeStatus,
+            Docs
         },
 
         data() {
             return {
-                status: null,
-
                 description: null,
 
                 ticket: {},
@@ -162,13 +177,15 @@
 
                 screenshots: [],
 
+                docs: [],
+
                 errors: null,
 
-                statusTicket: [],
+                intervalUpdateComments: null,
 
-                statusDescription: '',
+                isShowAssign: false,
 
-                intervalUpdateComments: null
+                isShowChangeStatus: false
             }
         },
 
@@ -181,37 +198,17 @@
 
         computed: {
             ...mapGetters(['getAutoUpdater', 'getUser']),
-            ticket_id() { return this.$route.params.id;}
+            ticket_id() {
+                return this.$route.params.id;
+            }
         },
 
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
 
-            getStatusTicket() {
-                const url = `/api/handler/tickets/status/gets`;
-
-                this.setLoaderBar(true);
-
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.statusTicket = response.data.statusTicket;
-                        this.status = response.data.statusTicket[0].id;
-                        this.selectDescriptionStatus();
-                    } else {
-                        Sound.playSound('/sounds/_alert.mp3');
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                    }
-
-                }).catch(error => {
-                    Sound.playSound('/sounds/_alert.mp3');
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+            updateTicket(ticket) {
+                this.ticket = ticket;
+                this.getComments();
             },
 
             getTicket() {
@@ -219,7 +216,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -248,7 +244,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -278,7 +273,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -296,42 +290,6 @@
                     this.errors = error.response.data.message;
                     this.setMessenger({text: this.errors, status: 'error'});
                 })
-            },
-
-            handlerTicket() {
-                const newStatus  = this.status;
-                const currStatus = this.ticket.status_id;
-
-                if (newStatus === currStatus) {
-                    Sound.playSound('/sounds/_alert.mp3');
-                    this.setMessenger({text: 'Заявка в текущем статусе', status: 'error'});
-                    return;
-                }
-
-                if (!confirm(`Вы собираетесь изменить статус заявки. Выполнить это действие?`))
-                    return;
-
-                const url = `/api/handler/tickets/change-status`;
-
-                this.setLoaderBar(true);
-
-                axios.put(url, {ticket_id: this.ticket_id, status: newStatus}).then(response => {
-                    this.setLoaderBar(false);
-                    if (response.data.success) {
-                        Sound.playSound('/sounds/_upgrade_complete.mp3');
-                        this.ticket = response.data.ticket;
-                        this.getComments();
-                        this.setMessenger({text: 'Статус заявки изменен.', status: 'success'});
-                    } else {
-                        Sound.playSound('/sounds/_alert.mp3');
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                    }
-                }).catch(error => {
-                    Sound.playSound('/sounds/_alert.mp3');
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
             },
 
             getComment(comment_id) {
@@ -370,7 +328,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.post(url, {ticket_id: this.ticket_id, description: this.description.trim()}).then(response => {
                     this.setLoaderBar(false);
 
@@ -432,7 +389,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.put(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -450,20 +406,20 @@
             },
 
             getScreenshots() {
-                const url = `/api/screenshots/id/${this.ticket_id}/get`;
-
-                axios.get(url).then(response => {
-
-                    if (response.data.success) {
+                const url = `/api/screenshots/ticket-id/${ this.ticket_id }/get`;
+                this.setLoaderBar(true);
+                axios.get(url)
+                    .then(response => {
                         this.screenshots = response.data.screens;
-                    }
-
-                }).catch(error => {
-                    Sound.playSound('/sounds/_alert.mp3');
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+                    })
+                    .catch(error => {
+                        Sound.playSound('/sounds/_alert.mp3');
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
+                    });
             },
 
             resetCommentNew(comment) {
@@ -474,7 +430,6 @@
 
                 // this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.put(url).then(response => {
 
                     // this.setLoaderBar(false);
@@ -491,16 +446,29 @@
                 });
             },
 
-            selectDescriptionStatus() {
-                this.statusDescription = this.statusTicket[this.status -1].description;
+            getDocs() {
+                const url = `/api/docs/ticket-id/${ this.ticket_id }/get`;
+                this.setLoaderBar(true);
+                axios.get(url)
+                    .then(response => {
+                        this.docs = response.data.docs;
+                    })
+                    .catch(error => {
+                        Sound.playSound('/sounds/_alert.mp3');
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
+                    });
             }
         },
 
         created() {
-            this.getStatusTicket();
             this.getTicket();
             this.getComments();
             this.getScreenshots();
+            this.getDocs();
 
             this.startUpdateComments();
         },
@@ -511,30 +479,11 @@
     }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
     .description {
         background: #eff2f5;
         line-height: 30px;
         min-height: 120px;
         word-break: break-all;
-    }
-
-    .description-status{
-        border: solid 1px #e48e8e;
-        border-radius: 2px;
-        line-height: 25px;
-        text-indent: 1.5em; /* Отступ первой строки */
-        text-align: justify; /* Выравнивание по ширине */
-    }
-
-    .description-status-warning{
-
-        margin: 5px 0;
-        background: #eaeaea;
-    }
-
-    p {
-
     }
 </style>

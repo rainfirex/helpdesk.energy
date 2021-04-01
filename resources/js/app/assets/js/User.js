@@ -5,19 +5,27 @@ export default {
 
     loadUser() {
         const user = {};
-        user.user_id = localStorage.getItem('user_id');
+        user.user_id   = localStorage.getItem('user_id');
         user.api_token = localStorage.getItem('api_token');
-        user.name = localStorage.getItem('name');
-        user.email = localStorage.getItem('email');
-        user.phone = localStorage.getItem('phone');
-        user.mobile = localStorage.getItem('mobile');
+        user.name      = localStorage.getItem('name');
+        user.email     = localStorage.getItem('email');
+        user.phone     = localStorage.getItem('phone');
+        user.mobile    = localStorage.getItem('mobile');
         user.department = localStorage.getItem('department');
-        user.title = localStorage.getItem('title');
+        user.title      = localStorage.getItem('title');
         user.is_handler = (localStorage.getItem('is_handler') == 'true') ? true : false;
         user.login =
             user.user_id !== null &&
             user.api_token !== null &&
             user.name !== null;
+
+        //Токен авторизации api
+        const token = user.api_token;
+        const auth  = user.login;
+
+        if (token && auth) {
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+        }
 
         return user;
     },

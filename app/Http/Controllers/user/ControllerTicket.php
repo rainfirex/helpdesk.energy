@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\user;
 
 use App\CommentTicket;
-use App\Mail\FeedMail;
+use App\DocFile;
 use App\Mail\MailTicketCompleted;
 use App\Mail\MailTicketCreate;
 use App\ScreenshotFile;
@@ -121,6 +121,8 @@ class ControllerTicket extends Controller
 
         if ($user) {
 
+            date_default_timezone_set("Asia/Sakhalin");
+
             $ticket = Ticket::create([
                 'user_id'     => $user->id,
                 'number'      => uniqid('ticket.', true),
@@ -133,46 +135,80 @@ class ControllerTicket extends Controller
                 'is_new'      => true
             ]);
 
-            $files = $request->file();
+            $ticket->number = Ticket::CreateNumber($ticket->id);
+            $result = $ticket->save();
 
-            if (!empty($files)) {
 
-                $dirStorageApp = storage_path('app/public/');
-                $dirScreenshots = 'screenshots/';
-                $dirToday = $dirStorageApp.$dirScreenshots.date('d.m.Y');
+            if ($result){
 
-                if (!file_exists($dirStorageApp.$dirScreenshots)) {
-                    mkdir($dirStorageApp.$dirScreenshots);
-                    chmod($dirStorageApp.$dirScreenshots, 0777);
-                }
+                $files = $request->file();
 
-                if (!file_exists($dirToday)) {
-                    mkdir($dirToday);
-                    chmod($dirToday, 0777);
-                }
+                if (!empty($files)) {
 
-                foreach ($files as $file){
-                    if (in_array($file->extension(),['png', 'jpg', 'jpeg'])) {
-                        $path = $file->store('public/'.$dirScreenshots.date('d.m.Y'));
-                        chmod(storage_path('app/').$path, 0777);
+                    $dirStorageApp = storage_path('app/public/');
+                    $dirScreenshots = 'screenshots/';
+                    $dirDocs = 'docs/';
+                    $dirScreenshotToday = $dirStorageApp.$dirScreenshots.date('d.m.Y');
+                    $dirDocToday = $dirStorageApp.$dirDocs.date('d.m.Y');
 
-                        ScreenshotFile::create([
-                            'path' => $path,
-                            'url' => asset('storage/screenshots/'.date('d.m.Y').'/'.$file->hashName()),
-                            'name' => $file->getClientOriginalName(),
-                            'mime_type' => $file->getMimeType(),
-                            'user_id'   => $user->id,
-                            'ticket_id' => $ticket->id
-                        ]);
+                    if (!file_exists($dirStorageApp.$dirScreenshots)) {
+                        mkdir($dirStorageApp.$dirScreenshots);
+                        chmod($dirStorageApp.$dirScreenshots, 0777);
+                    }
+
+                    if (!file_exists($dirStorageApp.$dirDocs)) {
+                        mkdir($dirStorageApp.$dirDocs);
+                        chmod($dirStorageApp.$dirDocs, 0777);
+                    }
+
+                    if (!file_exists($dirScreenshotToday)) {
+                        mkdir($dirScreenshotToday);
+                        chmod($dirScreenshotToday, 0777);
+                    }
+
+                    if (!file_exists($dirDocToday)) {
+                        mkdir($dirDocToday);
+                        chmod($dirDocToday, 0777);
+                    }
+
+                    foreach ($files as $file){
+                        if (in_array($file->extension(),['png', 'jpg', 'jpeg'])) {
+                            $path = $file->store('public/'.$dirScreenshots.date('d.m.Y'));
+                            chmod(storage_path('app/').$path, 0777);
+
+                            ScreenshotFile::create([
+                                'path' => $path,
+                                'url' => asset('storage/'.$dirScreenshots.date('d.m.Y').'/'.$file->hashName()),
+                                'name' => $file->getClientOriginalName(),
+                                'mime_type' => $file->getMimeType(),
+                                'user_id'   => $user->id,
+                                'ticket_id' => $ticket->id
+                            ]);
+                        }
+
+                        if(in_array($file->extension(), ['txt', 'text', 'pdf', 'docx', 'xlsx', 'pptpx'])){
+                            $path = $file->store('public/'.$dirDocs.date('d.m.Y'));
+                            chmod(storage_path('app/').$path, 0777);
+
+                            DocFile::create([
+                                'path' => $path,
+                                'url' => asset('storage/'.$dirDocs.date('d.m.Y').'/'.$file->hashName()),
+                                'name' => $file->getClientOriginalName(),
+                                'mime_type' => $file->getMimeType(),
+                                'user_id'   => $user->id,
+                                'ticket_id' => $ticket->id
+                            ]);
+                        }
                     }
                 }
+
+                if (!empty($user->email)) {
+                    Mail::to($user->email)->send(new MailTicketCreate($user->name, $ticket->title, $ticket->number));
+                }
+
+                return response()->json(['success' => true, 'ticket_id' => $ticket->id, 'ticket_number' => $ticket->number]);
             }
 
-            if (!empty($user->email)) {
-                Mail::to($user->email)->send(new MailTicketCreate($user->name, $ticket->title, $ticket->number));
-            }
-
-            return response()->json(['success' => true, 'ticket_id' => $ticket->id, 'ticket_number' => $ticket->number]);
         } else
             return response()->json(['success' => false, 'message' => 'Пользователь не авторизирован!']);
     }

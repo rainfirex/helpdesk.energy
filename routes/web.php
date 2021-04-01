@@ -13,7 +13,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-//Route::get('/mailto', 'ControllerMail@send');
-
 Route::view('{path}', 'welcome')->where('path', '([A-z\d-\/_.]+)?');

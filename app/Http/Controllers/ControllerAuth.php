@@ -17,7 +17,7 @@ class ControllerAuth extends Controller
 
     public function login(Request $request){
 
-        $login    = $request->input('login');
+        $login    = trim($request->input('login'));
         $password = $request->input('password');
 
         if (empty($login) || empty($password)) {
@@ -60,10 +60,21 @@ class ControllerAuth extends Controller
 
             if ($ldapBind) {
                 //привязка LDAP прошла успешно...
-                $filter = '(&(objectClass=user)(objectCategory=person)(samaccountname=' . $login.'))';
+                $filter = '(&(objectClass=user)(objectCategory=person)(sAMAccountName='.$login.'))';
                 $sr = ldap_search($ldapConnect, $ldapDn, $filter,  ['cn', 'dn', 'mail', 'telephonenumber', 'othertelephone', 'mobile', 'department', 'title']);
 
+//                $filter = '(&(objectClass=user)(objectCategory=person)(sAMAccountName=' . $login.'))';
+//                $filter = '(&(objectClass=user)(objectCategory=person)(sAMAccountName=' .'Poplavskiy_AA'.'))';
+//                $filter = '(&(objectClass=user)(objectCategory=person)(sAMAccountName=' .'litin_dv '.'))';
+//                $filter = '(&(objectClass=user)(objectCategory=person)(sAMAccountName=' .'ldap_users'.'))';
+//                $filter = '(&(objectClass=user)(objectCategory=person)(sAMAccountName=' .'smirnov_mv'.'))';
+
+
+                $sr = ldap_search($ldapConnect, $ldapDn, $filter,  ['*']);
+
                 $ldapEntries = ldap_get_entries($ldapConnect, $sr);
+
+//                dd($filter, $ldapEntries);
 
                 $username = isset($ldapEntries[0]['cn']) ? $ldapEntries[0]['cn'][0] : '';
                 $email = isset($ldapEntries[0]['mail']) ? $ldapEntries[0]['mail'][0] : '';
@@ -75,6 +86,11 @@ class ControllerAuth extends Controller
 
                 ldap_close($ldapConnect);
 
+                if(empty($username)){
+                    return response()->json([
+                        'success'  => false, 'message' => 'Пользователь не найден!'
+                    ]);
+                }
 
                 $user = User::whereName($username)->first();
 
@@ -93,6 +109,7 @@ class ControllerAuth extends Controller
                 $user->api_token = Str::random(60);
                 $user->last_ip = $_SERVER['REMOTE_ADDR'];
                 $user->user_agent = $_SERVER['HTTP_USER_AGENT'];
+                $user->is_handler = ($user->department === CheckHandler::HANDLER_DEPARTMENT) ? true : false;
                 $user->save();
 
                 return response()->json([
@@ -107,7 +124,7 @@ class ControllerAuth extends Controller
                     'title'      => $user->title,
                     'last_ip'    => $user->last_ip,
                     'user_agent' => $user->user_agent,
-                    'is_handler' => ($user->department === CheckHandler::HANDLER_DEPARTMENT) ? true : false
+                    'is_handler' => $user->is_handler
                 ], 200);
             } else {
                 //привязка LDAP не удалась...

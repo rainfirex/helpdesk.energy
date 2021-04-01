@@ -5,7 +5,6 @@
             <Body></Body>
             <Footer></Footer>
             <LoaderBar></LoaderBar>
-<!--            <button class="btn btn-info" @click="test">Not</button>-->
         </div>
 </template>
 
@@ -28,17 +27,10 @@
             Footer,
             LoaderBar
         },
-
         created() {
             Sound.init();
             User.init();
-            Notification.initPermission();
-        },
-
-        methods: {
-            test() {
-                Notification.play('test', 'kloool');
-            }
+            Notification.init();
         }
     };
 </script>

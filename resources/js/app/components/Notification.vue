@@ -32,7 +32,11 @@
                 this.permission = permission;
                 this.message = message;
 
-               console.dir(message)
+               console.dir(message);
+
+                var notification = new Notification("TEST TEST TEST!", {
+                    body : 'Привет, это тестовое уведомление!!!'
+                });
             });
         }
     }

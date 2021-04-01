@@ -78,7 +78,7 @@
                         User.init();
 
                         this.setMessenger({text: 'Вы вошли в систему', status: 'success'});
-                        Sound.playSound('/sounds/_mission.mp3');
+                        Sound.playSound('/sounds/_auth.mp3');
                         this.$router.push('/');
 
                     } else {

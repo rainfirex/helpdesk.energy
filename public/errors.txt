@@ -1,0 +1,83 @@
+Array
+(
+    [0] => Array
+        (
+            [email] => zhapov.ar+ur@gmail.com
+        )
+
+    [1] => Array
+        (
+            [email] => AvtoStroi-vs.@mail.ru
+        )
+
+    [2] => Array
+        (
+            [email] => morolvi.@mail.ru
+        )
+
+    [3] => Array
+        (
+            [email] => vasileva42.@mail.ru
+        )
+
+    [4] => Array
+        (
+            [email] => kim-v-e.@mail.ru
+        )
+
+    [5] => Array
+        (
+            [email] => shnayder.@qmail.com
+        )
+
+    [6] => Array
+        (
+            [email] => sasha.den.@mail.ru
+        )
+
+    [7] => Array
+        (
+            [email] => sasha.den.@mail.ru
+        )
+
+    [8] => Array
+        (
+            [email] => sasha.den.@mail.ru
+        )
+
+    [9] => Array
+        (
+            [email] => utaru.@yandex.ru
+        )
+
+    [10] => Array
+        (
+            [email] => che.i.r.a.@mail.ru
+        )
+
+    [11] => Array
+        (
+            [email] => sh.ig.rf.@gmail.com
+        )
+
+    [12] => Array
+        (
+            [email] => teсgi@mail.ru
+        )
+
+    [13] => Array
+        (
+            [email] => Konmarina2012.@gmail.com
+        )
+
+    [14] => Array
+        (
+            [email] => 90mir.@mail.ru
+        )
+
+    [15] => Array
+        (
+            [email] => Slava.salenkov.@inbox.ru
+        )
+
+)

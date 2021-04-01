@@ -13,14 +13,12 @@
                     <p>Создана: {{formatDateTime(ticket.created_at)}}</p>
                 </div>
                 <div class="offset-md-3 col-md-4 " v-if="ticket.status_ticket">
-
                     <p>Статус: <span
                         :class="{'status-completed' : ticket.status_ticket.status === 'completed',
                              'status-untouched' : ticket.status_ticket.status === 'untouched',
                              'status-performed' : ticket.status_ticket.status === 'performed',
                              'status-rejected' : ticket.status_ticket.status === 'rejected'}">{{ticket.status_ticket.title}}</span>
                     </p>
-
                 </div>
             </div>
 
@@ -55,7 +53,6 @@
             </div>
 
             <Screenshots :screenshots="screenshots"></Screenshots>
-
         </div>
 
         <hr>
@@ -156,6 +153,7 @@
     import Sound from "../../../assets/js/Sound";
     import IndicatorAutoUpdate from "../../IndicatorAutoUpdate";
     import Screenshots from "../../Screenshots";
+    import Notification from "../../../assets/js/Notification";
     export default {
         name: "ShowDetaleTicket",
         components: {
@@ -209,7 +207,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
                     this.setLoaderBar(false);
 
@@ -241,7 +238,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.post(url, {ticket_id: this.ticket_id, description: this.description.trim()}).then(response => {
                     this.setLoaderBar(false);
 
@@ -276,7 +272,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -301,7 +296,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -311,6 +305,7 @@
 
                         if (response.data.comments.some(item => item.is_new && item.is_handler === 1)) {
                             Sound.playSound('/sounds/_adjutant.mp3');
+                            Notification.play('Заявка', 'У вас непрочитанный комментарий.');
                         }
 
 
@@ -333,7 +328,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -370,7 +364,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.put(url, {description : this.descriptionComplete}).then(response => {
 
                     this.setLoaderBar(false);
@@ -450,7 +443,6 @@
 
                 // this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.put(url).then(response => {
 
                     // this.setLoaderBar(false);

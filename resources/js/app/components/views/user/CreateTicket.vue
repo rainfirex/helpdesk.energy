@@ -55,10 +55,9 @@
                 <label for="category">Категория</label>
                 <select class="form-control" id="category" aria-describedby="categoryHelp" v-model="category"
                         :class="{'error-input': $v.category.$error}"
-                        @change="$v.description.$touch()"
+                        @change="$v.category.$touch()"
                 >
                     <option :value="cat.title" v-for="cat in categories" :key="cat.id">{{cat.title}}</option>
-
                 </select>
                 <small id="categoryHelp" class="form-text text-muted" :class="{'is-error': $v.category.$error}">Категория заявки.
                     <span v-if="!$v.category.required" class="error-text"
@@ -81,14 +80,37 @@
             </div>
 
             <div class="form-group">
-                <label for="description">Загрузка файлов</label>
-                <div style="font-size: 0.8em; line-height: 30px">
+                <label for="docs">Документы</label>
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" id="docs"
+                               class="custom-file-input"
+                               multiple
+                               accept="
+                        text/plain,
+                        application/pdf,
+                        application/msword,
+                        application/vnd.ms-excel,
+                        application/vnd.ms-powerpoint,
+                        application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                        application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                        application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                               @change.prevent="selectDocsFiles"
+                        >
+                        <label class="custom-file-label" style="overflow: hidden" for="docs">{{ docslabel }}</label>
+                    </div>
                 </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="screenshots">Скриншоты</label>
                 <div class="custom-file d-none">
                     <input type="file" class="custom-file-input"
-                           multiple @change="selectFiles"
+                           id="screenshots"
+                           multiple @change.prevent="selectScreenshotsFiles"
                            ref="fileInput"
-                           accept="image/jpeg, image/jpg, image/png" >
+                           accept="image/jpeg, image/jpg, image/png">
                     <label class="custom-file-label">Файл...</label>
                 </div>
                 <div class="drop-container mt-2 form-control" ref="dropContainer" tabindex="7"
@@ -102,7 +124,6 @@
             </div>
 
             <div class="form-group" v-if="files.length > 0">
-                <p>Загружаемые файлы</p>
                 <ul class="list-unstyled d-flex flex-wrap justify-content-between">
                     <li class="item-prev p-2 mb-2"
                         v-for="(file, index) in files">
@@ -141,7 +162,9 @@
 
                 categories: [],
 
-                files: []
+                files: [],
+
+                docFiles: []
             }
         },
 
@@ -171,7 +194,23 @@
             }
         },
 
-        computed: mapGetters(['getUser']),
+        computed: {
+            ...mapGetters(['getUser']),
+            docslabel(){
+                if (this.docFiles.length > 0){
+                    let st ='';
+                    this.docFiles.forEach(file => {
+                        if (st === '')
+                            st += file.name;
+                        else
+                            st += ', '+file.name;
+                    });
+                    return st;
+                }
+                else
+                    return 'Выберите txt, pdf, doc-docx, xls-xlsx';
+            }
+        },
 
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
@@ -196,10 +235,13 @@
                     frmData.append('file_'+i, this.files[i])
                 }
 
+                for (let i = 0; i < this.docFiles.length; i++) {
+                    frmData.append('doc_'+i, this.docFiles[i])
+                }
+
                 const url = `/api/user/tickets/create`;
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.post(url, frmData).then(response => {
 
                     this.setLoaderBar(false);
@@ -222,9 +264,7 @@
                 });
             },
 
-            selectFiles(e) {
-                e.preventDefault();
-
+            selectScreenshotsFiles(e) {
                 if (e.target.files.length <= 0) return;
 
                 let isErrors = false;
@@ -236,6 +276,29 @@
 
                     if (extFile === 'jpg' || extFile === 'png' || extFile === 'jpeg') {
                         this.files.push(file);
+                    } else {
+                        isErrors = true;
+                        ignorFiles.push(file.name)
+                    }
+                }
+                if (isErrors) {
+                    this.setMessenger({text: `Некоторые файлы были проигнорированы: ${ignorFiles.map(item => `"${item}"`).join("\n\r")}`, status: 'error'});
+                }
+            },
+
+            selectDocsFiles(e){
+                if (e.target.files.length <= 0) return;
+
+                let isErrors = false;
+                let ignorFiles = [];
+
+                for (const file of e.target.files){
+                    let extFile = file.name.substr(file.name.lastIndexOf(".")+1, file.name.length).toLowerCase();
+
+                    if (extFile === 'doc' || extFile === 'xls' || extFile === 'ppt' ||
+                        extFile === 'docx' || extFile === 'xlsx' || extFile === 'pptx' ||
+                        extFile === 'pdf' || extFile === 'text' || extFile === 'txt') {
+                        this.docFiles.push(file);
                     } else {
                         isErrors = true;
                         ignorFiles.push(file.name)
@@ -278,7 +341,6 @@
                 const url = `/api/user/categories`;
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
                     this.setLoaderBar(false);
                     if (response.data.success) {

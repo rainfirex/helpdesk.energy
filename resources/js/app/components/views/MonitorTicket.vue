@@ -6,7 +6,7 @@
             <div class="col-12 offset-md-2 col-md-8">
                 <div class="form-group mb-4">
                     <label for="numberTicket">Номер заявки</label>
-                    <input type="text" class="form-control" id="numberTicket" aria-describedby="numberTicketHelp" placeholder="ticket.5f444f1ace2ef6.00000000"
+                    <input type="text" class="form-control" id="numberTicket" aria-describedby="numberTicketHelp" placeholder="000017"
                            v-model="numberTicket"
                            :class="{'error-input': $v.numberTicket.$error}"
                            @change="$v.numberTicket.$touch()"
@@ -15,7 +15,7 @@
                         <span v-if="!$v.numberTicket.required" class="error-text"
                               :class="{'error-show': !$v.numberTicket.required}">Поле пустое</span>
                         <span v-if="!$v.numberTicket.minLength" class="error-text"
-                              :class="{'error-show': !$v.numberTicket.minLength}">Меньше 30ти символов</span>
+                              :class="{'error-show': !$v.numberTicket.minLength}">Меньше 6ти символов</span>
                         <span v-if="!$v.numberTicket.alpha" class="error-text"
                               :class="{'error-show': !$v.numberTicket.alpha}">Неверный формат заявки</span>
                     </small>
@@ -37,7 +37,7 @@
                     <p class="m-1 comment-created">{{formatDateTime(comment.created_at)}}</p>
                     <p class="m-0"><span class="nick">Вы: </span> {{comment.description}}</p>
                 </div>
-                <div class="mt-2 text-center" v-if="user.login === true">
+                <div class="mt-2 text-center" v-if="getUser.login === true">
                     <router-link class="btn btn-outline-info" :to="{name: 'detale-ticket', params: {id : ticket.id}}" tag="button">Подробно</router-link>
                 </div>
             </div>
@@ -48,42 +48,32 @@
 
 <script>
     import Sound from "../../assets/js/Sound";
-    import { mapActions } from 'vuex';
+    import { mapActions, mapGetters } from 'vuex';
     import { required, minLength, helpers  } from 'vuelidate/lib/validators'
-    const alpha = helpers.regex('alpha', /^(ticket.)[a-z0-9.]+/i);
+    // const alpha = helpers.regex('alpha', /^(ticket.)[a-z0-9.]+/i);
+    const alpha = helpers.regex('alpha', /^[0-9.]+/i);
     export default {
         name: "MonitorTicket",
-
         data() {
             return {
-
                 numberTicket: '',
-
                 ticket: null,
-
                 errors: null
             }
         },
-
         validations: {
             numberTicket : {
                 required,
-                minLength: minLength(30),
+                minLength: minLength(6),
                 alpha
             }
         },
-
         computed: {
-            user(){
-                return this.$store.state.Auth;
-            }
+            ...mapGetters(['getUser'])
         },
-
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-
             getTicket(){
-
                 this.$v.$touch();
 
                 if (this.$v.$invalid) {
@@ -98,31 +88,28 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.user.api_token;
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.ticket = response.data.ticket;
-                    }
-
-                }).catch(error => {
-                    Sound.playSound('/sounds/_alert.mp3');
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+                axios.get(url)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.ticket = response.data.ticket;
+                        }
+                    })
+                    .catch(error => {
+                        Sound.playSound('/sounds/_alert.mp3');
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
+                    });
             },
 
             formatDate(dateTime) {
                 return new Date(dateTime).toLocaleDateString() + ' в ' + new Date(dateTime).toLocaleTimeString();
             },
-
             formatDateTime(dateTime) {
                 return new Date(dateTime).toLocaleDateString() + ' в ' + new Date(dateTime).toLocaleTimeString();
             },
-
             listenerKeyDown(e) {
                 if (e.code === 'Enter' && e.key === 'Enter') {
                     this.getTicket();
@@ -133,18 +120,16 @@
                 }
             }
         },
-
         mounted() {
             document.body.addEventListener('keydown', this.listenerKeyDown);
         },
-
         beforeDestroy() {
             document.body.removeEventListener('keydown', this.listenerKeyDown);
         }
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .comment-your{
         border-radius: 3px;
         background: #d8ecdd;

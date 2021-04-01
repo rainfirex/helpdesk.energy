@@ -13,10 +13,9 @@ class ControllerScreenshots extends Controller
         $this->middleware('auth:api')->only('index');
     }
 
-    public function index($ticket_id) {
+    public function index(int $ticket_id) {
         $screens = ScreenshotFile::select('id', 'url', 'name', 'mime_type')->where('ticket_id', '=', $ticket_id)->get();
         return response()->json([
-            'success' => true,
             'screens' => $screens
         ]);
     }

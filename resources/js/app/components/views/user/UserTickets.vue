@@ -88,7 +88,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -130,7 +129,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -168,7 +166,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -207,5 +204,8 @@
 <style lang="scss" scoped>
     .search-label{
         font-size: small;
+    }
+    .breadcrumb {
+        background-color: #f2f5f9;
     }
 </style>

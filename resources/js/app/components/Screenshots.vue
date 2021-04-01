@@ -1,6 +1,6 @@
 <template>
     <div class="mt-3">
-        <p class="mb-0"><b>Загруженные файлы:</b></p>
+        <p class="mb-0"><b>Скриншоты:</b></p>
         <div class="screenshots">
             <div
                 v-for="(screenshot, index) in screenshots"

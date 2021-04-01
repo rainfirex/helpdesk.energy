@@ -14,13 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
 Route::prefix('screenshots')->group(function () {
 
-    Route::get('/id/{ticket_id}/get', 'ControllerScreenshots@index');
+    Route::get('/ticket-id/{ticket_id}/get', 'ControllerScreenshots@index');
+
+});
+
+Route::prefix('docs')->group(function () {
+
+    Route::get('/ticket-id/{ticket_id}/get', 'CHandlerDocs@index');
 
 });
 
@@ -82,6 +84,14 @@ Route::prefix('/user')->group(function() {
 
 Route::prefix('/handler')->group(function () {
 
+    Route::prefix('/handlers')->group(function (){
+
+        Route::get('', 'handler\CHandlerUser@handlers');
+
+        Route::put('assign/handler-{handlerId}/ticket-{ticketId}', 'handler\CHandlerUser@assign');
+
+    });
+
     Route::prefix('tickets')->group(function (){
 
         Route::get('/count-type', 'handler\ControllerHandlerTicket@countTypeTicket');
@@ -117,5 +127,15 @@ Route::prefix('/handler')->group(function () {
 
         Route::put('/id/{id}/reset-new', 'handler\ControllerHandlerComment@resetNew');
     });
+
+});
+
+Route::prefix('/resource-access')->group(function () {
+
+    Route::get('', 'CResourceAccess@index');
+
+    Route::get('{id}', 'CResourceAccess@show');
+
+    Route::post('create', 'CResourceAccess@store');
 
 });

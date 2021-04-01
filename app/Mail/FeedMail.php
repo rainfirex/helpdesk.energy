@@ -12,13 +12,21 @@ class FeedMail extends Mailable
 
     public $feedback;
 
+    public $view;
+
+    public $subject;
+
     /**
-     * Create a new message instance.
-     * FeedMail constructor.
+     * * Create a new message instance.
      * @param $feedback
+     * FeedMail constructor.
+     * @param $view
+     * @param $subject
      */
-    public function __construct($feedback)
+    public function __construct($view, $subject, $feedback)
     {
+        $this->view = $view;
+        $this->subject = $subject;
         $this->feedback = $feedback;
     }
 
@@ -29,10 +37,23 @@ class FeedMail extends Mailable
      */
     public function build()
     {
-//        dd($this->feedback);
-        return $this->view('mail-ticket')->with([
-            'title' => $this->feedback['title'],
-            'body'  => $this->feedback['body']
-        ]);
+        if (isset($this->feedback['file'])){
+            $email = $this->view($this->view)->subject($this->subject)->with([
+                'title' => $this->feedback['title'],
+                'body'  => $this->feedback['body']
+            ]);
+
+            foreach($this->feedback['file'] as $filePath){
+                $email->attach($filePath);
+            }
+            return $email;
+        }
+        else
+        {
+            return $this->view($this->view)->subject($this->subject)->with([
+                'title' => $this->feedback['title'],
+                'body'  => $this->feedback['body']
+            ]);
+        }
     }
 }

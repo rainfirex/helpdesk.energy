@@ -12,7 +12,7 @@ class Ticket extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'number', 'phone', 'department', 'category', 'title', 'description', 'status_id', 'performer_user_id', 'is_new'
+        'user_id', 'number', 'phone', 'department', 'category', 'title', 'description', 'status_id', 'performer_user_id', 'is_new', 'master_user_id'
     ];
 
     public function statusTicket() {
@@ -31,6 +31,10 @@ class Ticket extends Model
         return $this->hasOne(User::class, 'id', 'performer_user_id');
     }
 
+    public function masterUser(){
+        return $this->hasOne(User::class, 'id', 'master_user_id');
+    }
+
     public function isNewUserComment() {
         return $this->hasMany(CommentTicket::class, 'ticket_id', 'id')
             ->where('is_new', '=', '1')
@@ -41,5 +45,10 @@ class Ticket extends Model
         return $this->hasMany(CommentTicket::class, 'ticket_id', 'id')
             ->where('is_new', '=', '1')
             ->where('is_handler', '=', '0');
+    }
+
+    public static function CreateNumber(int $number = 1): string {
+//        'ticket.'.date('dmy') .'.'. str_pad($number, 6, '0', STR_PAD_LEFT);
+        return str_pad($number, 6, '0', STR_PAD_LEFT);
     }
 }

@@ -1,6 +1,7 @@
 <template>
     <div class="content">
         <h2 class="text-center">Обработка заявок</h2>
+
         <hr>
 
         <div class="row">
@@ -17,6 +18,9 @@
                     class="badge badge-light">{{typeCount.rejected}}</span></button>
                 <button class="btn btn-secondary" @click="setTypeTicket('performed')">Выполняются <span
                     class="badge badge-light">{{typeCount.performed}}</span></button>
+                <button class="btn btn-warning" @click="setTypeTicket('performer')">Назначенные <span
+                        class="badge badge-light">{{typeCount.performer}}</span></button>
+
             </div>
         </div>
 
@@ -107,7 +111,6 @@
         </div>
 
         <indicatorAutoUpdate :is_enable="intervalUpdateTicket"/>
-
     </div>
 </template>
 
@@ -118,15 +121,14 @@
     import Pagination from "../../Pagination";
     export default {
         name: "HandlerTickets",
-
         components: {
             indicatorAutoUpdate,
             Pagination,
             Piechart
         },
-
         data() {
             return {
+
                 findText: '',
 
                 countPage: 0,
@@ -145,24 +147,21 @@
                     completed: 0,
                     performed: 0,
                     rejected: 0,
-                    untouched: 0
+                    untouched: 0,
+                    performer: 0
                 },
 
                 typeTicket: 'all'
             }
         },
-
         computed: mapGetters(['getAutoUpdater', 'getUser']),
-
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-
-            setTypeTicket(status) {
-                this.typeTicket = status;
+            setTypeTicket(type) {
+                this.typeTicket = type;
                 this.getCountPage();
                 this.getAllTickets(1);
             },
-
             getAllTickets(numPage) {
                 this.currentPage = numPage;
 
@@ -172,7 +171,6 @@
 
                 this.stopIntervalUpdateAllTickets();
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -197,7 +195,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -261,7 +258,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -286,7 +282,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
                     this.setLoaderBar(false);
 
@@ -311,8 +306,6 @@
             this.getAllTickets(1);
             this.countType();
         },
-
-        mounted() {},
 
         beforeDestroy() {
             this.stopIntervalUpdateAllTickets();

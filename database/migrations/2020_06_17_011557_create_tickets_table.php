@@ -26,8 +26,7 @@ class CreateTicketsTable extends Migration
             $table->bigInteger('status_id')->unsigned();
             $table->foreign('status_id')->references('id')->on('status_tickets');
             $table->bigInteger('performer_user_id')->nullable();
-//            $table->bigInteger('performer_user_id')->unsigned()->default(0);
-//            $table->foreign('performer_user_id')->references('id')->on('users');
+            $table->boolean('master_user_id')->default(0)->change();
             $table->timestamps();
         });
     }

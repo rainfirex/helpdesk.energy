@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
             $table->string('api_token')->nullable();
             $table->string('last_ip')->nullable();
             $table->string('user_agent')->nullable();
+            $table->boolean('is_handler');
             $table->timestamps();
         });
     }

@@ -46,6 +46,13 @@ class ControllerHandlerTicket extends Controller
 
             $tickets = Ticket::where('is_new', '=', true)->offset($offset)->limit(self::LIMIT_ON_PAGE)->orderBy('id', 'DESC')->get();
 
+        }elseif ($type == 'performer'){
+            $user = Auth::user();
+
+            $count = Ticket::where('performer_user_id', '=', $user->id)->count();
+
+            $tickets = Ticket::where('performer_user_id', '=', $user->id)->offset($offset)->limit(self::LIMIT_ON_PAGE)->orderBy('id', 'DESC')->get();
+
         } else {
 
             $st_ticket = StatusTicket::where('status', '=', $type)->first();
@@ -64,6 +71,9 @@ class ControllerHandlerTicket extends Controller
                 $query->select('id', 'status', 'title');
             },
             'performerUser' => function($query) {
+                $query->select('id','email', 'name', 'phone', 'title');
+            },
+            'masterUser' => function($query) {
                 $query->select('id','email', 'name', 'phone', 'title');
             },
             'isNewHandlerComment'
@@ -114,6 +124,12 @@ class ControllerHandlerTicket extends Controller
 
             $count = Ticket::where('is_new', '=', true)->count();
 
+        } elseif ($type === 'performer') {
+
+            $user = Auth::user();
+
+            $count = Ticket::where('performer_user_id', '=', $user->id)->count();
+
         } else {
 
             $st_ticket = StatusTicket::where('status', '=', $type)->first();
@@ -138,7 +154,13 @@ class ControllerHandlerTicket extends Controller
             },
             'user' => function($query) {
                 $query->select('id', 'name', 'email', 'phone', 'title');
-            }
+            },
+            'performerUser' => function($query) {
+                $query->select('id', 'name', 'email');
+            },
+            'masterUser' => function($query) {
+                $query->select('id','email', 'name');
+            },
         ]);
 
         return response()->json([
@@ -153,7 +175,6 @@ class ControllerHandlerTicket extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function changeStatus( Request $request) {
-
         $validator = Validator::make([
             'ticket_id' => $request->input('ticket_id'),
             'status'    => $request->input('status')
@@ -183,9 +204,31 @@ class ControllerHandlerTicket extends Controller
 
             $status = StatusTicket::find($request->input('status'));
 
+            // Если мастера заявки не тек. пользователь тогда
+            if($ticket->master_user_id != $user->id){
+                // Если нет исполнителя заявки тогда,
+                if($ticket->performer_user_id != null){
+                    // Если исполнитель не тек. пользователь - Отказ
+                    if($ticket->performer_user_id != $user->id){
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Отказ, вы не можете менять статус т.к. заявка вам не назначена.'
+                        ]);
+                    }
+                }
+            }
+
             $ticket->status_id = $status->id;
             $ticket->performer_user_id = $user->id;
             $ticket->save();
+
+            CommentTicket::create([
+                'user_id'   => $user->id,
+                'ticket_id' => $ticket->id,
+                'description' => sprintf('Статус заявки изменен на: "%s"', $status->title),
+                'is_handler'  => true,
+                'is_new'      => true
+            ]);
 
             $ticket->load([
                 'statusTicket' => function($query) {
@@ -194,18 +237,16 @@ class ControllerHandlerTicket extends Controller
                 'user' => function($query) {
                     $query->select('id', 'name', 'email', 'phone', 'title');
                 },
+                'performerUser' => function($query){
+                    $query->select('id', 'name', 'email');
+                },
+                'masterUser' => function($query){
+                    $query->select('id', 'name', 'email');
+                },
                 'comments' => function($query) {
                     $query->select('ticket_id', 'description', 'created_at', 'user_id');
                     $query->orderBy('id', 'DESC');
                 }
-            ]);
-
-            CommentTicket::create([
-                'user_id'   => $user->id,
-                'ticket_id' => $ticket->id,
-                'description' => sprintf('Статус заявки изменен на: "%s"', $status->title),
-                'is_handler'  => true,
-                'is_new'      => true
             ]);
 
             if (!empty($ticket->user->email)) {
@@ -250,6 +291,7 @@ class ControllerHandlerTicket extends Controller
         $countUntouched = Ticket::where('status_id', '=', StatusTicket::ST_UNTOUCHED)->count();
         $countRejected  = Ticket::where('status_id', '=', StatusTicket::ST_REJECTED)->count();
         $countCompleted = Ticket::where('status_id', '=', StatusTicket::ST_COMPLETED)->count();
+        $performer      = Ticket::where('performer_user_id', '=', Auth::user()->id)->count();
         $countNew       = Ticket::where('is_new', '=', true)->count();
 
         return response()->json([
@@ -260,7 +302,8 @@ class ControllerHandlerTicket extends Controller
                 'performed' => $countPerformed,
                 'untouched' => $countUntouched,
                 'rejected'  => $countRejected,
-                'completed' => $countCompleted
+                'completed' => $countCompleted,
+                'performer' => $performer
             ]
         ]);
     }

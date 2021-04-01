@@ -2,7 +2,8 @@ export default {
     state: {
         navMain: [
             {path: '/', title: 'Главная', auth: 'both', ico: 'fa-home'},
-            {path: '/tickets', title: 'Заявки', auth:true, ico: 'fa-newspaper-o'}
+            {path: '/tickets', title: 'Заявки', auth:true, ico: 'fa-newspaper-o'},
+            {path: '/request-info-resource', title: 'Заявка на подключение к И.Р.', auth: 'both', ico: 'fa-desktop'},
         ],
         navAuth: [
             {path: '/logout', title: 'Выход', auth: true},
@@ -15,7 +16,8 @@ export default {
             {path: '/tickets', title: 'Активные заявки', auth: true}
         ],
         navHandler: [
-            {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true, ico:'fa-sign-language'}
+            {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true, ico:'fa-sign-language'},
+            {path: '/resource-access', title: 'Доступы к И.Р.', auth: true, is_handler: true, ico:'fa-sign-language'}
         ],
     },
 

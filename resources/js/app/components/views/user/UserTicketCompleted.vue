@@ -62,7 +62,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -85,7 +84,6 @@
 
                 this.setLoaderBar(true);
 
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
                 axios.get(url).then(response => {
 
                     this.setLoaderBar(false);
@@ -121,5 +119,7 @@
     li {
         display: inline-block;
     }
-
+    .breadcrumb {
+        background-color: #f2f5f9;
+    }
 </style>
