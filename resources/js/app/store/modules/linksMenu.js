@@ -3,7 +3,7 @@ export default {
         navMain: [
             {path: '/', title: 'Главная', auth: 'both', ico: 'fa-home'},
             {path: '/tickets', title: 'Заявки', auth:true, ico: 'fa-newspaper-o'},
-            {path: '/request-info-resource', title: 'Заявка на подключение к И.Р.', auth: 'both', ico: 'fa-desktop'},
+            {path: '', path_absolute:'http://it.sakh.dvec.ru/',  title: 'Заявка на И.Р.', auth: 'both', ico: 'fa-desktop'},
         ],
         navAuth: [
             {path: '/logout', title: 'Выход', auth: true},
@@ -16,35 +16,28 @@ export default {
             {path: '/tickets', title: 'Активные заявки', auth: true}
         ],
         navHandler: [
-            {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true, ico:'fa-sign-language'},
-            {path: '/resource-access', title: 'Доступы к И.Р.', auth: true, is_handler: true, ico:'fa-sign-language'}
+            {path: '/handler-tickets', title: 'Обработка заявок', auth: true, is_handler: true, ico:'fa-sign-language'}
         ],
     },
-
     getters: {
         getMainNavs(state) {
             return state.navMain;
         },
-
         getAuthNavs(state) {
             return state.navAuth;
         },
-
         getTicketNavs(state) {
             return state.navTicket;
         },
-
         getHandlerNavs(state) {
             return state.navHandler;
         }
     },
-
     mutations: {
         setMainNav(state, payload) {
             state.nav.push(payload);
         }
     },
-
     actions: {
         setMainNav({ commit }, payload) {
             commit('setMainNav', payload)

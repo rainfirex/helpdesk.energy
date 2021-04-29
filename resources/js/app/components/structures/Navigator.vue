@@ -4,13 +4,26 @@
             <div class="col-12 col-sm-8 col-md-7 d-none d-sm-none d-md-block">
                 <ul class="p-md-0">
                     <li v-for="item in getMainNavs">
-                        <router-link
-                            class="nav-link"
-                            :to="item.path"
-                            active-class="active"
-                            v-if="item.auth === 'both' || item.auth === getUser.login"
-                        ><i class="fa" :class="item.ico" aria-hidden="true">&nbsp;&nbsp;{{item.title}}</i>
-                        </router-link>
+                        <div v-if="item.path_absolute">
+                            <a
+                                    class="nav-link"
+                                    :href="item.path_absolute"
+                                    target="_blank"
+                            >
+                                <i class="fa" :class="item.ico" aria-hidden="true">&nbsp;&nbsp;{{item.title}}</i>
+                            </a>
+                        </div>
+                        <div v-else>
+                            <router-link
+                                    class="nav-link"
+                                    :to="item.path"
+                                    active-class="active"
+                                    v-if="item.auth === 'both' || item.auth === getUser.login"
+                            >
+                                <i class="fa" :class="item.ico" aria-hidden="true">&nbsp;&nbsp;{{item.title}}</i>
+                            </router-link>
+                        </div>
+
                     </li>
 
                     <li v-for="item in getAuthNavs" v-if="item.auth === false && item.auth === getUser.login"
@@ -107,9 +120,7 @@
     import Sound from '../../assets/js/Sound';
     import User from '../../assets/js/User';
     export default {
-
         name: "Navigator",
-
         computed: {
             ...mapGetters(['getMainNavs', 'getAuthNavs', 'getHandlerNavs', 'getIsSoundMute', 'getUser']),
 
@@ -126,10 +137,8 @@
                 isShowUser: false
             }
         },
-
         methods: {
             ...mapActions(['setMessenger', 'setIsSoundMute']),
-
             logout() {
                 const url = `/api/auth/logout`;
                 axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.getUser.api_token;
@@ -158,24 +167,20 @@
                     User.init();
                 });
             },
-
             openUserInfo() {
                 this.isShowUser = !this.isShowUser;
                 if (this.isShowUser)
                     Sound.playSound('/sounds/_bloop.mp3');
             },
-
             changeSoundMode() {
                 Sound.setMode(!this.getIsSoundMute);
             }
         },
-
         watch: {
             $route() {
                 Sound.playSound('/sounds/_bloop.mp3');
             }
         },
-
         created() {
             document.body.addEventListener('keydown', e => {
                 if (e.key === 'Escape' || e.code === 'Escape') {
@@ -191,13 +196,9 @@
 </script>
 
 <style lang="scss" scoped>
-
     .navigator {
-
         user-select: none;
-
         /*text-transform: uppercase;*/
-
         .user {
             display: inline-block;
             color: white;

@@ -2,7 +2,6 @@
     <div class="content">
         <h2 class="text-center">Создать заявку</h2>
         <hr>
-
         <div class="offset-md-1 col-md-10">
             <div class="mb-4">
                 <button class="btn btn-secondary" @click="$router.go(-1)" title="Назад"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
@@ -100,7 +99,6 @@
                         <label class="custom-file-label" style="overflow: hidden" for="docs">{{ docslabel }}</label>
                     </div>
                 </div>
-
             </div>
 
             <div class="form-group">
@@ -149,51 +147,40 @@
     import Sound from "../../../assets/js/Sound";
     export default {
         name: "CreateTicket",
-
         data() {
             return {
                 errors: null,
-
                 department: '',
                 phone: '',
                 category: '',
                 title: '',
                 description: '',
-
                 categories: [],
-
                 files: [],
-
                 docFiles: []
             }
         },
-
         validations: {
             department : {
                 required,
                 minLength: minLength(6)
             },
-
             phone: {
                 required,
                 minLength: minLength(6)
             },
-
             category : {
                 required
             },
-
             title: {
                 required,
                 minLength: minLength(4)
             },
-
              description: {
                 required,
                 minLength: minLength(4)
             }
         },
-
         computed: {
             ...mapGetters(['getUser']),
             docslabel(){
@@ -211,10 +198,8 @@
                     return 'Выберите txt, pdf, doc-docx, xls-xlsx';
             }
         },
-
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-
             createTicket() {
                 this.$v.$touch();
 
@@ -239,11 +224,9 @@
                     frmData.append('doc_'+i, this.docFiles[i])
                 }
 
-                const url = `/api/user/tickets/create`;
                 this.setLoaderBar(true);
 
-                axios.post(url, frmData).then(response => {
-
+                axios.post(`/api/user/tickets/create-ticket`, frmData).then(response => {
                     this.setLoaderBar(false);
 
                     if (response.data.success){
@@ -263,7 +246,19 @@
                     this.setMessenger({text: this.errors, status: 'error'});
                 });
             },
-
+            getCategories() {
+                this.setLoaderBar(true);
+                axios.get(`/api/user/categories`).then(response => {
+                    this.setLoaderBar(false);
+                    if (response.data.success) {
+                        this.categories = response.data.categories;
+                    }
+                }).catch(error => {
+                    this.setLoaderBar(false);
+                    this.errors = error.response.data.message;
+                    this.setMessenger({text: this.errors, status: 'error'});
+                });
+            },
             selectScreenshotsFiles(e) {
                 if (e.target.files.length <= 0) return;
 
@@ -285,7 +280,6 @@
                     this.setMessenger({text: `Некоторые файлы были проигнорированы: ${ignorFiles.map(item => `"${item}"`).join("\n\r")}`, status: 'error'});
                 }
             },
-
             selectDocsFiles(e){
                 if (e.target.files.length <= 0) return;
 
@@ -308,51 +302,28 @@
                     this.setMessenger({text: `Некоторые файлы были проигнорированы: ${ignorFiles.map(item => `"${item}"`).join("\n\r")}`, status: 'error'});
                 }
             },
-
             dropEnter(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.$refs.dropContainer.classList.add('drop-container-enter');
             },
-
             dropFiles(e) {
                 e.preventDefault();
                 e.stopPropagation();
-
                 for (const file of e.dataTransfer.files) {
                     this.files.push(file);
                 }
-
                 this.$refs.dropContainer.classList.remove('drop-container-enter');
             },
-
             dropLeave(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.$refs.dropContainer.classList.remove('drop-container-enter');
             },
-
             dropOver(e) {
                 e.preventDefault();
                 e.stopPropagation();
             },
-
-            getCategories() {
-                const url = `/api/user/categories`;
-                this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-                    this.setLoaderBar(false);
-                    if (response.data.success) {
-                        this.categories = response.data.categories;
-                    }
-                }).catch(error => {
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
-            },
-
             pstImage(event) {
                 let items = (event.clipboardData || event.originalEvent.clipboardData).items;
                 // will give you the mime types
@@ -365,11 +336,9 @@
                     }
                 }
             },
-
             removeFile(index){
                 this.files.splice(index, 1);
             },
-
             renderImage(){
                 for (let index in this.files) {
 
@@ -382,32 +351,26 @@
                     reader.readAsDataURL(this.files[index]);
                 }
             },
-
             listenerKeyDown(e) {
                 if (e.code === 'Enter' && e.key === 'Enter') {
                     this.createTicket();
                 }
             }
         },
-
         watch: {
           files() {
               this.renderImage();
           }
         },
-
         created() {
             this.department = this.getUser.department;
             this.phone = this.getUser.phone;
-
             this.getCategories();
         },
-
         mounted() {
             document.body.addEventListener('paste', this.pstImage);
             document.body.addEventListener('keydown', this.listenerKeyDown);
         },
-
         beforeDestroy() {
             document.body.removeEventListener('paste', this.pstImage);
             document.body.removeEventListener('keydown', this.listenerKeyDown);

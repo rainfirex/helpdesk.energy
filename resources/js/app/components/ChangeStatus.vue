@@ -21,7 +21,7 @@
                 <!-- Кнопка -->
                 <button class="btn btn-outline-dark"
                         :disabled="ticket.status_ticket && (ticket.status_ticket.status === 'completed')"
-                        @click="handlerTicket()">Обработать заявку
+                        @click="updateTicketStatus()">Обработать заявку
                 </button>
 
                 <div class="button-close">
@@ -54,12 +54,10 @@
         },
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-            getStatusTicket() {
-                const url = `/api/handler/tickets/status/gets`;
-
+            // Получить возможные статусы заявки
+            getTicketStatuses() {
                 this.setLoaderBar(true);
-
-                axios.get(url)
+                axios.get(`/api/handler/tickets/get-ticket-statuses`)
                     .then(response => {
                         if (response.data.success) {
                             this.statusTicket = response.data.statusTicket;
@@ -76,16 +74,11 @@
                         this.errors = error.response.data.message;
                         this.setMessenger({text: this.errors, status: 'error'});
                     })
-                    .finally(() => {
-                        this.setLoaderBar(false);
-                    });
+                    .finally(() => { this.setLoaderBar(false); });
             },
-            setDescription() {
-                this.description = this.statusTicket[this.newStatus -1].description;
-            },
-            handlerTicket() {
+            // Обновить статус заявки
+            updateTicketStatus() {
                 const currStatus = this.ticket.status_id;
-
                 if (this.newStatus === currStatus) {
                     Sound.playSound('/sounds/_alert.mp3');
                     this.setMessenger({text: 'Заявка в текущем статусе', status: 'error'});
@@ -94,12 +87,8 @@
 
                 if (!confirm(`Вы собираетесь изменить статус заявки. Выполнить это действие?`))
                     return;
-
-                const url = `/api/handler/tickets/change-status`;
-
                 this.setLoaderBar(true);
-
-                axios.put(url, {ticket_id: this.ticket.id, status: this.newStatus})
+                axios.put(`/api/handler/tickets/update-ticket-status`, {ticket_id: this.ticket.id, status: this.newStatus})
                     .then(response => {
                         if (response.data.success) {
                             Sound.playSound('/sounds/_upgrade_complete.mp3');
@@ -120,12 +109,15 @@
                         this.close();
                     });
             },
+            setDescription() {
+                this.description = this.statusTicket[this.newStatus -1].description;
+            },
             close(){
                 this.$emit('close');
             }
         },
         created() {
-            this.getStatusTicket();
+            this.getTicketStatuses();
         }
     }
 </script>

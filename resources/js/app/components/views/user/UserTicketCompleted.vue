@@ -28,19 +28,14 @@
     import Pagination from "../../Pagination";
     export default {
         name: "UserTicketCompleted",
-
         components: {ListTicket, Pagination},
-
         data() {
             return {
                 tickets: [],
-
                 countPage: 0,
-
                 currentPage: 0
             }
         },
-
         computed: {
             ...mapGetters(['getTicketNavs', 'getUser']),
             //Навигация
@@ -51,57 +46,40 @@
                 });
             }
         },
-
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-
-            getTickets(numPage) {
-                this.currentPage = numPage;
-
-                const url = `/api/user/tickets/completed/page/${numPage}/get`;
-
+            getPages() {
                 this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-
+                axios.get(`/api/user/tickets/completed/pages`).then(response => {
                     this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.tickets = response.data.tickets;
-                    } else {
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                    }
-
-                }).catch(error => {
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                })
-            },
-
-            getCountPage() {
-                const url = `/api/user/tickets/completed/pages`;
-
-                this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
                     if (response.data.success) {
                         this.countPage = response.data.count;
                     }
-
                 }).catch(error => {
                     this.setLoaderBar(false);
                     this.errors = error.response.data.message;
                     this.setMessenger({text: this.errors, status: 'error'});
                 });
+            },
+            getTickets(numPage) {
+                this.currentPage = numPage;
+                this.setLoaderBar(true);
+                axios.get(`/api/user/tickets/completed/page/${numPage}/get-tickets`).then(response => {
+                    this.setLoaderBar(false);
+                    if (response.data.success) {
+                        this.tickets = response.data.tickets;
+                    } else {
+                        this.setMessenger({text: response.data.message, status: 'error'});
+                    }
+                }).catch(error => {
+                    this.setLoaderBar(false);
+                    this.errors = error.response.data.message;
+                    this.setMessenger({text: this.errors, status: 'error'});
+                })
             }
         },
-
         created() {
-            this.getCountPage();
+            this.getPages();
             this.getTickets(1);
         }
     }

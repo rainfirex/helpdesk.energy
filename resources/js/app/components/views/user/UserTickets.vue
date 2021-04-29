@@ -48,25 +48,17 @@
     import Sound from "../../../assets/js/Sound";
     export default {
         name: "UserTickets",
-
         components: { ListTicket, Pagination },
-
         data() {
             return {
                 tickets: [],
-
                 errors: null,
-
                 intervalUpdateListTicket: null,
-
                 countPage: 0,
-
                 currentPage: 0,
-
                 findText: ''
             }
         },
-
         computed: {
             ...mapGetters(['getTicketNavs', 'getAutoUpdater', 'getUser']),
             //Навигация
@@ -77,60 +69,11 @@
                 });
             }
         },
-
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-
-            getTickets(numPage) {
-                this.currentPage = numPage;
-
-                const url = `/api/user/tickets/page/${numPage}/get`;
-
+            getPages(){
                 this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.tickets = response.data.tickets;
-                    } else {
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                        Sound.playSound('/sounds/_alert.mp3');
-                    }
-
-                }).catch(error => {
-                    Sound.playSound('/sounds/_alert.mp3');
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                })
-            },
-
-            formatDate(datetime) {
-                return  new Date(datetime).toLocaleDateString();
-            },
-
-            startUpdateListTicket(){
-                this.intervalUpdateListTicket = setInterval(() => {
-                    this.getTickets(this.currentPage);
-                }, this.getAutoUpdater);
-            },
-
-            stopUpdateListTicket(){
-                if (this.intervalUpdateListTicket) {
-                    clearInterval(this.intervalUpdateListTicket);
-                    this.intervalUpdateListTicket = null;
-                }
-            },
-
-            getCountPage(){
-                const url = `/api/user/tickets/pages`;
-
-                this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-
+                axios.get(`/api/user/tickets/pages`).then(response => {
                     this.setLoaderBar(false);
 
                     if (response.data.success) {
@@ -144,29 +87,34 @@
                     this.setMessenger({text: this.errors, status: 'error'});
                 });
             },
+            getTickets(numPage) {
+                this.currentPage = numPage;
+                this.setLoaderBar(true);
 
-            inputFindText(){
-                if (this.findText === '') {
-                    this.getCountPage();
-                    this.getTickets(this.currentPage);
-                    this.startUpdateListTicket();
-                }
+                axios.get(`/api/user/tickets/page/${ numPage }/get-tickets`).then(response => {
+                    this.setLoaderBar(false);
+                    if (response.data.success) {
+                        this.tickets = response.data.tickets;
+                    } else {
+                        this.setMessenger({text: response.data.message, status: 'error'});
+                        Sound.playSound('/sounds/_alert.mp3');
+                    }
+                }).catch(error => {
+                    Sound.playSound('/sounds/_alert.mp3');
+                    this.setLoaderBar(false);
+                    this.errors = error.response.data.message;
+                    this.setMessenger({text: this.errors, status: 'error'});
+                })
             },
-
             findTickets() {
                 if (this.findText.length < 5) {
                     Sound.playSound('/sounds/_alert.mp3');
                     this.setMessenger({text: 'Для поиска необходимо ввести 5 символов.', status: 'error'});
                     return false;
                 }
-
                 this.stopUpdateListTicket();
-
-                const url = `/api/user/tickets/find/${this.findText}`;
-
                 this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
+                axios.get(`/api/user/tickets/search/${ this.findText }`).then(response => {
 
                     this.setLoaderBar(false);
 
@@ -177,24 +125,40 @@
                         this.setMessenger({text: response.data.message, status: 'error'});
                         Sound.playSound('/sounds/_alert.mp3');
                     }
-
                 }).catch(error => {
                     Sound.playSound('/sounds/_alert.mp3');
                     this.setLoaderBar(false);
                     this.errors = error.response.data.message;
                     this.setMessenger({text: this.errors, status: 'error'});
                 });
+            },
+            formatDate(datetime) {
+                return  new Date(datetime).toLocaleDateString();
+            },
+            startUpdateListTicket(){
+                this.intervalUpdateListTicket = setInterval(() => {
+                    this.getTickets(this.currentPage);
+                }, this.getAutoUpdater);
+            },
+            stopUpdateListTicket(){
+                if (this.intervalUpdateListTicket) {
+                    clearInterval(this.intervalUpdateListTicket);
+                    this.intervalUpdateListTicket = null;
+                }
+            },
+            inputFindText(){
+                if (this.findText === '') {
+                    this.getPages();
+                    this.getTickets(this.currentPage);
+                    this.startUpdateListTicket();
+                }
             }
         },
-
         created() {
-            this.getCountPage();
-
+            this.getPages();
             this.getTickets(1);
-
             this.startUpdateListTicket();
         },
-
         beforeDestroy() {
             this.stopUpdateListTicket();
         }

@@ -47,6 +47,7 @@
         },
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
+            // Получить исполнителей
             getHandlers(){
                 this.setLoaderBar(true);
                 axios.get('/api/handler/handlers')
@@ -62,10 +63,10 @@
                         this.setLoaderBar(false);
                     });
             },
+            // Назначить исполнителя
             assignHandler(){
                 this.setLoaderBar(true);
-                const ticketId = this.ticket.id;
-                axios.put(`/api/handler/handlers/assign/handler-${ this.handlerId }/ticket-${ ticketId }`)
+                axios.put(`/api/handler/handlers/id/${ this.handlerId }/ticket-id/${ this.ticket.id }/assign`)
                     .then(response => {
                         if (response.data.success){
                             this.ticket.performer_user = response.data.performer_user;

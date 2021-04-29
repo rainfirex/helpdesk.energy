@@ -28,7 +28,6 @@
         </div>
     </div>
 </template>
-
 <script>
     import { mapActions } from 'vuex';
     import { required, minLength } from 'vuelidate/lib/validators'
@@ -36,7 +35,6 @@
     import User from '../../assets/js/User';
     export default {
         name: "Auth",
-
         data() {
           return{
               login: '',
@@ -46,21 +44,17 @@
               errors: []
           }
         },
-
         validations: {
             login: {
                 required
             },
-
             password: {
                 required,
                 minLength: minLength(8)
             }
         },
-
         methods: {
             ...mapActions(['setMessenger']),
-
             auth() {
                 this.$v.$touch();
 
@@ -70,34 +64,27 @@
                     return false;
                 }
 
-                const url = `/api/auth/login`;
-                axios.post(url, {login: this.login, password: this.password}).then(response => {
+                axios.post(`/api/auth/login`, {login: this.login, password: this.password}).then(response => {
                     if (response.data.success) {
-
                         User.login(response.data);
                         User.init();
-
                         this.setMessenger({text: 'Вы вошли в систему', status: 'success'});
                         Sound.playSound('/sounds/_auth.mp3');
                         this.$router.push('/');
-
                     } else {
                         this.setMessenger({text: response.data.message, status: 'error'});
                         Sound.playSound('/sounds/_alert.mp3');
                     }
-
                 }).catch(error => {
                     Sound.playSound('/sounds/_alert.mp3');
                     this.errors = error.response.data.message;
                     this.setMessenger({text: this.errors, status: 'error'});
                 });
             },
-
             listenerKeyDown(e) {
                 if(e.code === 'Enter' && e.key === 'Enter') {
                     this.auth();
                 }
-
                 if (e.code === 'Escape' && e.key === 'Escape') {
                     if (this.login.length > 0 || this.password.length > 0) {
                         if(confirm('Сбросить поля ввода?')) {
@@ -108,11 +95,9 @@
                 }
             }
         },
-
         mounted() {
             document.body.addEventListener('keydown', this.listenerKeyDown);
         },
-
         beforeDestroy() {
             document.body.removeEventListener('keydown', this.listenerKeyDown);
         }

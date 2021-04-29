@@ -1,9 +1,7 @@
 <template>
     <div class="content">
         <h2 class="text-center">Обработка заявок</h2>
-
         <hr>
-
         <div class="row">
             <div class="offset-1 col-10 text-center mb-3 container-count">
                 <button class="btn btn-success" @click="setTypeTicket('all')">Все <span class="badge badge-light">{{typeCount.all}}</span>
@@ -25,7 +23,7 @@
         </div>
 
         <div class="row mt-4 mb-4">
-            <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getAllTickets($event)"/>
+            <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
 
             <div class="col-12 col-md-7 offset-lg-2 col-lg-5">
                 <div class="row">
@@ -128,19 +126,12 @@
         },
         data() {
             return {
-
                 findText: '',
-
                 countPage: 0,
-
                 currentPage: 0,
-
                 tickets: [],
-
                 errors: null,
-
                 intervalUpdateTicket: null,
-
                 typeCount: {
                     all: 0,
                     new: 0,
@@ -150,102 +141,75 @@
                     untouched: 0,
                     performer: 0
                 },
-
                 typeTicket: 'all'
             }
         },
         computed: mapGetters(['getAutoUpdater', 'getUser']),
         methods: {
             ...mapActions(['setMessenger', 'setLoaderBar']),
-            setTypeTicket(type) {
-                this.typeTicket = type;
-                this.getCountPage();
-                this.getAllTickets(1);
-            },
-            getAllTickets(numPage) {
+            // Получить заявки
+            getTickets(numPage) {
                 this.currentPage = numPage;
-
-                const url = `/api/handler/tickets/page/${numPage}/type/${this.typeTicket}/get`;
-
                 this.setLoaderBar(true);
-
                 this.stopIntervalUpdateAllTickets();
-
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.tickets = response.data.tickets;
-
-                        this.startIntervalUpdateAllTicket();
-                    } else {
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                    }
-
-                }).catch(error => {
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+                axios.get(`/api/handler/tickets/page/${ numPage }/type/${ this.typeTicket }/get-tickets`)
+                    .then(response => {
+                        this.setLoaderBar(false);
+                        if (response.data.success) {
+                            this.tickets = response.data.tickets;
+                            this.startIntervalUpdateAllTicket();
+                        } else {
+                            this.setMessenger({text: response.data.message, status: 'error'});
+                        }
+                    })
+                    .catch(error => {
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
+                    });
             },
-
-            getCountPage() {
-                const url = `/api/handler/tickets/type/${this.typeTicket}/pages`;
-
+            // Получить количество заявок по типам
+            getTypeTickets() {
                 this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.countPage = response.data.count;
-                    }
-
-                }).catch(error => {
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+                axios.get(`/api/handler/tickets/get-type-tickets`)
+                    .then(response => {
+                        this.setLoaderBar(false);
+                        if (response.data.success) {
+                            this.typeCount = response.data.typeCount;
+                        } else {
+                            this.setMessenger({text: response.data.message, status: 'error'});
+                        }
+                    })
+                    .catch(error => {
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
+                    });
             },
+            // Получить кол-во страниц определенного типа
+            getCountPage() {
+                this.setLoaderBar(true);
+                axios.get(`/api/handler/tickets/type-ticket/${ this.typeTicket }/pages`)
+                    .then(response => {
+                        this.setLoaderBar(false);
+                        if (response.data.success) {
+                            this.countPage = response.data.count;
+                        }
+                    })
+                    .catch(error => {
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
 
-            openDetale(id) {
-                this.$router.push({name: 'handler-detale-ticket', params: {id: id}});
+                    });
             },
-
-            startIntervalUpdateAllTicket() {
-                if (this.intervalUpdateTicket === null) {
-                    this.intervalUpdateTicket = setInterval(() => {
-                        this.getAllTickets(this.currentPage);
-                        this.countType();
-                    }, this.getAutoUpdater);
-                }
-            },
-
-            stopIntervalUpdateAllTickets() {
-                if (this.intervalUpdateTicket) {
-                    clearInterval(this.intervalUpdateTicket);
-                    this.intervalUpdateTicket = null;
-                }
-            },
-
-            formatDate(date) {
-                return new Date(date).toLocaleDateString();
-            },
-
-            formatTime(time) {
-                return new Date(time).toLocaleTimeString();
-            },
-
-            inputFindText() {
-                if (this.findText === '') {
-                    this.startIntervalUpdateAllTicket();
-                    this.getCountPage();
-                    this.getAllTickets(this.currentPage);
-                }
-            },
-
+            // Поиск заявок
             findTickets() {
                 if (this.findText.length < 5) {
                     this.setMessenger({text: 'Для поиска необходимо ввести 5 символов.', status: 'error'});
@@ -253,65 +217,70 @@
                 }
 
                 this.stopIntervalUpdateAllTickets();
-
-                const url = `/api/handler/tickets/find/${this.findText}`;
-
                 this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-                        this.tickets = response.data.tickets;
-                        this.countPage = 0;
-                        this.paginationGenerated();
-                    } else {
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                    }
-
-                }).catch(error => {
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+                axios.get(`/api/handler/tickets/ticket-title/${this.findText}/find`)
+                    .then(response => {
+                        this.setLoaderBar(false);
+                        if (response.data.success) {
+                            this.tickets = response.data.tickets;
+                            this.countPage = 0;
+                            this.paginationGenerated();
+                        } else {
+                            this.setMessenger({text: response.data.message, status: 'error'});
+                        }
+                    })
+                    .catch(error => {
+                        this.errors = error.response.data.message;
+                        this.setMessenger({text: this.errors, status: 'error'});
+                    })
+                    .finally(() => {
+                        this.setLoaderBar(false);
+                    });
             },
-
-            countType() {
-                const url = `/api/handler/tickets/count-type`;
-
-                this.setLoaderBar(true);
-
-                axios.get(url).then(response => {
-                    this.setLoaderBar(false);
-
-                    if (response.data.success) {
-
-                        this.typeCount = response.data.typeCount;
-
-                    } else {
-                        this.setMessenger({text: response.data.message, status: 'error'});
-                    }
-
-                }).catch(error => {
-                    this.setLoaderBar(false);
-                    this.errors = error.response.data.message;
-                    this.setMessenger({text: this.errors, status: 'error'});
-                });
+            setTypeTicket(type) {
+                this.typeTicket = type;
+                this.getCountPage();
+                this.getTickets(1);
+            },
+            openDetale(id) {
+                this.$router.push({name: 'handler-detale-ticket', params: {id: id}});
+            },
+            startIntervalUpdateAllTicket() {
+                if (this.intervalUpdateTicket === null) {
+                    this.intervalUpdateTicket = setInterval(() => {
+                        this.getTickets(this.currentPage);
+                        this.getTypeTickets();
+                    }, this.getAutoUpdater);
+                }
+            },
+            stopIntervalUpdateAllTickets() {
+                if (this.intervalUpdateTicket) {
+                    clearInterval(this.intervalUpdateTicket);
+                    this.intervalUpdateTicket = null;
+                }
+            },
+            formatDate(date) {
+                return new Date(date).toLocaleDateString();
+            },
+            formatTime(time) {
+                return new Date(time).toLocaleTimeString();
+            },
+            inputFindText() {
+                if (this.findText === '') {
+                    this.startIntervalUpdateAllTicket();
+                    this.getCountPage();
+                    this.getTickets(this.currentPage);
+                }
             }
         },
-
         created() {
             this.getCountPage();
-            this.getAllTickets(1);
-            this.countType();
+            this.getTickets(1);
+            this.getTypeTickets();
         },
-
         beforeDestroy() {
             this.stopIntervalUpdateAllTickets();
         },
-
-        //beforeRouteEnter, beforeRouteLeave, beforeRouteUpdate
         beforeRouteEnter (to, from, next) {
             if (localStorage.getItem('is_handler') === 'true') {
                 next();
@@ -320,12 +289,10 @@
                 window.location.href = "/";
             }
         }
-
     }
 </script>
 
 <style scoped>
-
     .container-count {
         line-height: 50px;
     }

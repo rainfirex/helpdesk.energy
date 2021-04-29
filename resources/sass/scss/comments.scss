@@ -1,0 +1,162 @@
+.comments {
+  max-height: 750px;
+  overflow: auto;
+
+  .comment-box {
+    background: white;
+    padding: 5px;
+    margin: 14px 0;
+
+    .comment {
+      line-height: 35px;
+      padding: 10px;
+      margin: 10px 10px 0 10px;
+      position: relative;
+
+      .comment-about {
+        font-size: 0.8em;
+      }
+    }
+  }
+
+  .viewers-container {
+    background-color: #fbfbfb;
+    display: flex;
+    padding: 5px;
+
+    .viewers {
+      margin-right: 5px;
+      font-size: 0.5em;
+      max-width: 110px;
+      display: inline-block;
+      word-wrap: break-word;
+      white-space: nowrap;
+      border: solid 1px black;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      line-height: 1.4em;
+      cursor: default;
+      transition: 0.8s;
+      border-radius: 5px;
+
+      &.v-1 {
+        border-color: red;
+        color: #a20000;
+
+        &:hover {
+          background: red;
+          color: white;
+        }
+      }
+
+      &.v-2 {
+        border-color: purple;
+        color: #410041;
+
+        &:hover {
+          background: purple;
+          color: white;
+        }
+      }
+
+      &.v-3 {
+        border-color: deepskyblue;
+        color: #005e7d;
+
+        &:hover {
+          background: deepskyblue;
+          color: white;
+        }
+      }
+
+      &.v-4 {
+        border-color: green;
+        color: #004700;
+
+        &:hover {
+          background: green;
+          color: white;
+        }
+      }
+
+      &.v-5 {
+        border-color: greenyellow;
+        color: #486a14;
+
+        &:hover {
+          background: greenyellow;
+          color: black;
+        }
+      }
+
+      &.v-6 {
+        border-color: black;
+
+        &:hover {
+          background: black;
+          color: white;
+        }
+      }
+
+      &.v-7 {
+        border-color: #20c997;
+        color: #147f5f;
+
+        &:hover {
+          background: #20c997;
+          color: white;
+        }
+      }
+
+      &.v-8 {
+        border-color: gray;
+        color: #4b4b4b;
+
+        &:hover {
+          background: gray;
+          color: white;
+        }
+      }
+
+      &.v-9 {
+        border-color: darkorange;
+        color: #653700;
+
+        &:hover {
+          background: darkorange;
+          color: white;
+        }
+      }
+
+      &.v-10 {
+        border-color: blue;
+        color: #000094;
+
+        &:hover {
+          background: blue;
+          color: white;
+        }
+      }
+    }
+  }
+
+  .username {
+    font-size: 0.9em;
+    color: #7b7bd7;
+  }
+
+  .date-created {
+    color: #757575;
+    font-size: 0.9em;
+    border-bottom: solid 1px #838383;
+    display: inline-block;
+  }
+
+  .comment-user {
+    background: #f5f7ff;
+  }
+
+  .comment-handler {
+    background: #fefefe;
+  }
+}

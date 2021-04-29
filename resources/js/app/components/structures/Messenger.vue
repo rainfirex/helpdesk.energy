@@ -1,15 +1,16 @@
 <template>
     <transition name="ani">
-        <div class="messenger mt-4 p-3 offset-1 col-10 offset-md-3 col-md-6"
+        <div class="messenger mt-1 ml-1"
              v-show="getMessenger.text"
              v-bind:class="{success: getMessenger.status === 'success', error: getMessenger.status === 'error'}"
-             @dblclick="close"
+             @click="close"
              @mouseenter="hover"
-             @mouseleave="isHover=false">
-            <p class="offset-1 col-10 messenger-text"
-               :class="{'is-error': getMessenger.status === 'error', 'is-success': getMessenger.status === 'success'}">{{getMessenger.text}}</p>
-            <hr>
-            <p class="help m-0 p-0 text-center" @click="close">Нажми чтобы закрыть</p>
+             @mouseleave="isHover=false"
+        >
+            <span class="m-2 ico" :class="{'ico-error': getMessenger.status === 'error', 'ico-success': getMessenger.status === 'success'}"></span>
+            <div class="p-3 m-4 messenger-text">
+                {{getMessenger.text}}
+            </div>
         </div>
     </transition>
 </template>
@@ -18,7 +19,6 @@
     import { mapGetters, mapActions } from 'vuex'
     export default {
         name: "Messenger",
-
         data() {
             return {
                 isHover : false
@@ -27,15 +27,12 @@
         computed: {
             ...mapGetters(['getMessenger'])
         },
-
         methods: {
             ...mapActions(['setMessenger', 'clearTimeoutMessenger']),
-
             close() {
                 this.isHover = false;
                 this.setMessenger({text: ''});
             },
-
             hover() {
                 this.isHover = true;
                 this.clearTimeoutMessenger();
@@ -46,79 +43,40 @@
 
 <style lang="scss" scoped>
     .messenger {
-        box-shadow: 1px 2px 10px 0.2rem rgba(0, 0, 0, 0.25);
-        background-color: #6281a0f7;
+        box-shadow: 1px 2px 10px 0.2rem rgb(0 0 0 / 25%);
+        background: linear-gradient(to bottom, #575252, #1b1919, #363636, #605858);
         color: white;
-        line-height: 40px;
+        line-height: 30px;
         position: fixed;
-        z-index: 99;
+         z-index: 99;
         overflow: hidden;
-        text-align: justify;
-
-        &:hover {
-            background: #5a615b;
-            outline: solid 2px #f0f0f0;
-        }
-
-        .is-error:before {
-            border-left: 25px #ed3737 solid;
-        }
-
-        .is-success:before {
-            border-left: 25px #1ec90a solid;
-        }
-    }
-
-    .messenger-text {
-
-        &:before {
-            content: "";
-            border-radius: 5%;
-            margin-right: 15px;
-            border: solid;
-        }
-    }
-
-    .error {
-        background-color: #965c64;
-    }
-
-    .success {
-        background-color: rgb(101, 165, 115);
-    }
-
-    .help {
-        font-size: 11px;
+        outline: solid 1px #f0f0f0;
         cursor: pointer;
-    }
 
-    .ani-enter, .ani-leave {
-        opacity: 0;
-        width: 0;
-    }
-
-    .ani-enter-active {
-        animation: ani-in 0.6s ease-in;
-    }
-
-    .ani-leave-active {
-        animation: ani-in 0.3s ease-in reverse;
-    }
-
-    @keyframes ani-in {
-        0% {
-            opacity: 0;
-            width: 0;
+        .error {
+            &:hover {
+            }
+        }
+        .success {
+            &:hover {
+            }
         }
 
-        50% {
-            opacity: 0.5;
-            width: 50%;
+        .ico {
+            display: inline-block;
+            &.ico-error {
+                width: 10px;
+                height: 10px;
+                display: block;
+                background: #bd2130;
+            }
+            &.ico-success {
+                width: 10px;
+                height: 10px;
+                display: block;
+                background: #28a745;
+            }
         }
-
-        100% {
-            opacity: 1;
-            width: 100%;
-        }
+        .messenger-text {}
     }
 </style>
