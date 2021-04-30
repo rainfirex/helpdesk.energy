@@ -33,9 +33,7 @@
 <script>
     export default {
         name: "ListTicket",
-
         props:['tickets'],
-
         methods: {
             formatDate(datetime) {
                 return  new Date(datetime).toLocaleDateString();
@@ -45,34 +43,22 @@
 </script>
 
 <style lang="scss" scoped>
-
     $colorLink: #656767;
-    $colorTitle: #737373;
-    $ticketBackgroundColor: #f3f3f3;
-
+    $colorTitle: #a8a8a8;
+    $ticketBackgroundColor: #fbfdff;
     .item-ticket{
         border: solid 1px #efeded;
         background: $ticketBackgroundColor;
         transition: 0.8s;
-
-        p {
-            margin-bottom: 0;
-        }
-
-        &:last-child {
-            /*border-bottom: none;*/
-        }
-
+        p {margin-bottom: 0;}
         a{
             text-decoration: none;
             color: $colorLink;
         }
-
         &:hover{
             background-color: white;
             border: solid 1px $colorTitle;
         }
-
         .ticket-title{
             font-weight: 600;
             color: $colorTitle;

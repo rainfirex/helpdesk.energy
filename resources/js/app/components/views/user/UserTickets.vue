@@ -2,7 +2,6 @@
     <div class="content">
         <h2 class="text-center">Список активных заявок</h2>
         <hr>
-
         <div class="navigator">
             <ul class="breadcrumb">
                 <li class="breadcrumb-item" v-for="(nav, index) in breadcrumbNav" :key="index">
@@ -12,7 +11,6 @@
                 </li>
             </ul>
         </div>
-
         <div class="search mt-4 mb-4">
             <div class="col-12 offset-md-2 col-md-10 offset-lg-4 col-lg-8">
                 <div class="row">
@@ -33,14 +31,11 @@
         </div>
 
         <Pagination :countPage="countPage" :currentPage="currentPage" @getTickets="getTickets($event)"/>
-
         <div class="container-list">
             <ListTicket v-bind:tickets="tickets"></ListTicket>
         </div>
-
     </div>
 </template>
-
 <script>
     import { mapGetters, mapActions } from 'vuex';
     import ListTicket from "../../ListTicket";
@@ -164,7 +159,6 @@
         }
     }
 </script>
-
 <style lang="scss" scoped>
     .search-label{
         font-size: small;
